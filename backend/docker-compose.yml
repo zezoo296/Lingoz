@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+    postgres-db:
+        image: postgres:16-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: linguachat
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        networks:
+            - app-network
+
+    api-server:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - postgres-db
+        env_file:
+            - .env
+        ports:
+            - "3000:3000"
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        networks:
+            - app-network
+
+volumes:
+    postgres-data:
+
+networks:
+    app-network:
+        driver: bridge
