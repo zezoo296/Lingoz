@@ -1,0 +1,23 @@
+enum Gender {
+  MALE
+  FEMALE
+}
+
+
+model User {
+  id        Int                       @id @default(autoincrement())
+  email     String                    @unique
+  name      String?
+  password  String?
+  birthday  DateTime?
+  photo     String?
+  gender    Gender?
+  isDeleted Boolean                   @default(false)
+  lastSeen  DateTime?
+  googleId  String?                   @unique
+  createdAt DateTime                  @default(now())
+  passwordChangedAt  DateTime?
+  location  Unsupported("geography")?
+  @@index([location], type: Gist, map: "User_location_idx")
+}
+
