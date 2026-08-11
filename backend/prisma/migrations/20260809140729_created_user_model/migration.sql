@@ -15,6 +15,7 @@ CREATE TABLE "User" (
     "lastSeen" TIMESTAMP(3),
     "googleId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "passwordChangedAt" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

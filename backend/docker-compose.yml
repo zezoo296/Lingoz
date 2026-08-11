@@ -33,11 +33,19 @@ services:
             - "3000:3000"
         volumes:
             - .:/usr/src/app
-            - /usr/src/app/node_modules
+            - node_modules:/usr/src/app/node_modules
+        networks:
+            - app-network
+
+    adminer: # DB browser visualizer
+        image: adminer
+        ports:
+            - "8080:8080"
         networks:
             - app-network
 
 volumes:
+    node_modules:
     postgres-data:
 
 networks:

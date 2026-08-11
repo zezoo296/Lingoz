@@ -11,6 +11,6 @@ app.get("/", (_req, res) => {
     res.json({ status: "ok", message: "Lingua Chat API is running" });
 });
 
-app.use("/auth", authRouter);
+app.use("/api/v1/auth", authRouter);
 
 app.use(globalErrorHandler);

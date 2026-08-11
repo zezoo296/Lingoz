@@ -1,4 +1,4 @@
-import { Prisma } from "../generated/prisma/client.js";
+import { Prisma } from "../generated/prisma/client";
 
 // Automatically adds isDeleted=false to every user find query (except find unique)
 export const excludeDeletedUsers = Prisma.defineExtension({

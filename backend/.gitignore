@@ -1,12 +1,8 @@
 node_modules
-.env.local
-.env.*.local
 dist
 .prisma
 coverage
 npm-debug.log*
+.env
 
 /src/generated/prisma
-
-
-

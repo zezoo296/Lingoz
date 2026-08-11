@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import AppError from "../utils/AppError.js";
+import AppError from "../utils/AppError";
 
 interface ErrorWithProperties extends Error {
     statusCode?: number;
     status?: "fail" | "error";
     isOperational?: boolean;
-
-    // Mongoose / MongoDB properties
+    message: string;
     code?: number;
     path?: string;
     value?: unknown;
@@ -83,7 +82,7 @@ const globalErrorHandler = (
         return;
     }
 
-    let error = { ...err };
+    let error = err;
 
     if (error.name === "CastError") {
         error = handleCastErrorDB(error);
@@ -96,7 +95,6 @@ const globalErrorHandler = (
     if (error.name === "ValidationError") {
         error = handleValidationErrorDB(error);
     }
-
     sendErrorProd(error, res);
 };
 

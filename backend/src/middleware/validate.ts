@@ -10,7 +10,6 @@ const validate = (schema: ZodType) => {
             const message = result.error.issues
                 .map((issue) => issue.message)
                 .join(", ");
-
             return next(new AppError(message || "Invalid Request Body", 400));
         }
 

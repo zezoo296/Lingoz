@@ -1,11 +1,14 @@
 import prisma from "../config/prisma";
 import { Prisma } from "../generated/prisma/client";
 
-
 export const findUserById = (id: number) => {
     return prisma.user.findFirst({
         where: {
             id,
+        },
+        omit: {
+            password: true,
+            googleId: true,
         },
     });
 };
