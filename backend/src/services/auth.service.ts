@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import AppError from "../utils/AppError";
 import { config } from "../config/env";
-import type { SignupInput } from "../schemas/auth.schema";
+import type { SignupInput } from "@linguachat/shared";
 import { findUserByEmail, createUser } from "../repositories/user.repository";
 import { signToken } from "../utils/jwt";
 

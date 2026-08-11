@@ -2,11 +2,21 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+# Root workspace files
+COPY package.json package-lock.json ./
 
+# Frontend and shared package manifests
+COPY frontend/package.json ./frontend/package.json
+COPY shared/package.json ./shared/package.json
+
+# Install dependencies
 RUN npm install
 
-COPY . .
+# Only copy frontend + shared source
+COPY frontend ./frontend
+COPY shared ./shared
+
+WORKDIR /app/frontend
 
 EXPOSE 5173
 

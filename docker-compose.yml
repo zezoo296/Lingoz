@@ -1,19 +1,22 @@
-version: "3.9"
-
 services:
     postgres-db:
         image: postgis/postgis:16-3.5
         restart: unless-stopped
+
         environment:
             POSTGRES_DB: linguachat
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
+
         ports:
             - "5432:5432"
+
         volumes:
             - postgres-data:/var/lib/postgresql/data
+
         networks:
             - app-network
+
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres -d linguachat"]
             interval: 5s
@@ -22,41 +25,65 @@ services:
 
     api-server:
         build:
-            context: ./backend
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: ./backend/Dockerfile
+
         depends_on:
             postgres-db:
                 condition: service_healthy
+
         env_file:
             - ./backend/.env
+
         ports:
             - "3000:3000"
+
         volumes:
-            - ./backend:/usr/src/app
-            - backend_node_modules:/usr/src/app/node_modules
+            # Only backend source
+            - ./backend:/app/backend
+
+            # Only backend node_modules
+            - backend_node_modules:/app/node_modules
+
+            # Shared source
+            - ./shared:/app/shared
+
         networks:
             - app-network
 
     frontend:
         build:
-            context: ./frontend
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: ./frontend/Dockerfile
+
         depends_on:
             - api-server
+
         env_file:
             - ./frontend/.env
+
         ports:
             - "5173:5173"
+
         volumes:
-            - ./frontend:/app
+            # Only frontend source
+            - ./frontend:/app/frontend
+
+            # Frontend node_modules
             - frontend_node_modules:/app/node_modules
+
+            # Shared source
+            - ./shared:/app/shared
+
         networks:
             - app-network
 
     adminer:
         image: adminer
+
         ports:
             - "8080:8080"
+
         networks:
             - app-network
 
