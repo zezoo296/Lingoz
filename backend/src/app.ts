@@ -1,8 +1,18 @@
 import express from "express";
+import cors from "cors";
+
 import authRouter from "./routes/auth.route";
 import globalErrorHandler from "./controllers/error.controller";
+import { config } from "./config/env";
 
 export const app = express();
+
+app.use(
+    cors({
+        origin: config.clientOrigin,
+        credentials: true,
+    }),
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
