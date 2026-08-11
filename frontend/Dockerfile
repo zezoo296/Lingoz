@@ -1,9 +1,9 @@
-FROM node:20-alpine
+FROM node:24-slim
 
 WORKDIR /app
 
 # Root workspace files
-COPY package.json package-lock.json ./
+COPY package.json ./
 
 # Frontend and shared package manifests
 COPY frontend/package.json ./frontend/package.json

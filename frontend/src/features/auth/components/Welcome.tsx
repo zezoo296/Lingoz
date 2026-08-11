@@ -36,7 +36,7 @@ export default function Welcome() {
                 </p>
 
                 {/* Globe & Avatars */}
-                <div className="relative w-56 h-56 mx-auto mb-6">
+                <div className="relative w-56 h-56 mx-auto mb-6 pop-out">
                     <div className="absolute inset-0 rounded-full border border-brand-600/20 bg-brand-900/10 flex items-center justify-center">
                         <svg
                             className="w-40 h-40 text-brand-600/30"
