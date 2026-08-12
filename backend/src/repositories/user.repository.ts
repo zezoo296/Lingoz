@@ -32,3 +32,72 @@ export const createUser = (data: Prisma.UserCreateInput) => {
         data,
     });
 };
+
+export const updateUserGoogleId = (id: number, googleId: string) => {
+    return prisma.user.update({
+        where: { id },
+        data: { googleId },
+    });
+};
+
+export const updateUserPasswordResetOtp = (
+    id: number,
+    otpHash: string,
+    expiresAt: Date,
+) => {
+    return prisma.user.update({
+        where: { id },
+        data: {
+            passwordResetOtpHash: otpHash,
+            passwordResetOtpExpiresAt: expiresAt,
+            passwordResetTokenHash: null,
+            passwordResetTokenExpiresAt: null,
+        },
+    });
+};
+
+export const updateUserPasswordResetToken = (
+    id: number,
+    tokenHash: string,
+    expiresAt: Date,
+) => {
+    return prisma.user.update({
+        where: { id },
+        data: {
+            passwordResetTokenHash: tokenHash,
+            passwordResetTokenExpiresAt: expiresAt,
+            passwordResetOtpHash: null,
+            passwordResetOtpExpiresAt: null,
+        },
+    });
+};
+
+export const updateUserPassword = (id: number, hashedPassword: string) => {
+    return prisma.user.update({
+        where: { id },
+        data: {
+            password: hashedPassword,
+            passwordChangedAt: new Date(),
+            passwordResetTokenHash: null,
+            passwordResetTokenExpiresAt: null,
+            passwordResetOtpHash: null,
+            passwordResetOtpExpiresAt: null,
+        },
+    });
+};
+
+export const findUserByResetTokenHash = (tokenHash: string) => {
+    return prisma.user.findFirst({
+        where: {
+            passwordResetTokenHash: tokenHash,
+        },
+    });
+};
+
+export const findByEmailOrGoogleId = (email: string, googleId: string) => {
+    return prisma.user.findFirst({
+        where: {
+            OR: [{ googleId }, { email }],
+        },
+    });
+};

@@ -17,6 +17,10 @@ model User {
   googleId  String?                   @unique
   createdAt DateTime                  @default(now())
   passwordChangedAt  DateTime?
+  passwordResetOtpHash           String?
+  passwordResetOtpExpiresAt      DateTime?
+  passwordResetTokenHash         String?
+  passwordResetTokenExpiresAt    DateTime?
   location  Unsupported("geography")?
   @@index([location], type: Gist, map: "User_location_idx")
 }

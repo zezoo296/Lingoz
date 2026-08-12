@@ -1,6 +1,6 @@
 type TabsProps = {
     onClick: (action: "login" | "signup") => void;
-    screen: "login" | "signup";
+    screen: "login" | "signup" | "forgotPassword";
 };
 
 const activeClasses: String = "text-brand-400 border-brand-500 border-b-2";

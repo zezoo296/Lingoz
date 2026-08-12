@@ -12,7 +12,11 @@ import { toast } from "react-hot-toast";
 import { login } from "../api/authApi";
 import { loginSchema, type LoginInput } from "@linguachat/shared";
 
-export default function Login() {
+type loginProps = {
+    onForgot: (action: "forgotPassword") => void;
+};
+
+export default function Login({ onForgot }: loginProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     const mutation = useMutation({
@@ -100,6 +104,7 @@ export default function Login() {
                 <button
                     type="button"
                     className="cursor-pointer text-brand-400 text-sm hover:text-brand-300 transition-colors"
+                    onClick={() => onForgot("forgotPassword")}
                 >
                     Forgot password?
                 </button>
