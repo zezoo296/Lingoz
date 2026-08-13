@@ -10,11 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
-import {
-    forgotPassword,
-    verifyResetOtp,
-    resetPassword,
-} from "../api/authApi";
+import { forgotPassword, verifyResetOtp, resetPassword } from "../api/authApi";
 import {
     forgotPasswordSchema,
     verifyResetOtpSchema,
@@ -126,14 +122,7 @@ export default function ForgotPassword({
     };
 
     const handleResendCode = () => {
-        forgotPasswordMutation.mutate(
-            { email },
-            {
-                onSuccess: (data) => {
-                    toast.success(data.message);
-                },
-            },
-        );
+        forgotPasswordMutation.mutate({ email });
     };
 
     const isPending =
@@ -177,7 +166,9 @@ export default function ForgotPassword({
                                 {...emailForm.register("email")}
                                 disabled={isPending}
                                 className="w-full bg-surface-elevated border border-border rounded-xl py-3 pl-11 pr-4 text-text-primary text-sm placeholder:text-text-disabled focus:outline-none focus:border-border-active focus:ring-1 focus:ring-border-active transition-all disabled:opacity-60"
-                                aria-invalid={Boolean(emailForm.formState.errors.email)}
+                                aria-invalid={Boolean(
+                                    emailForm.formState.errors.email,
+                                )}
                             />
                         </div>
                         {emailForm.formState.errors.email && (
@@ -219,7 +210,9 @@ export default function ForgotPassword({
                                 {...otpForm.register("otp")}
                                 disabled={isPending}
                                 className="w-full bg-surface-elevated border border-border rounded-xl py-3 pl-11 pr-4 text-text-primary text-sm tracking-[0.3em] placeholder:tracking-normal placeholder:text-text-disabled focus:outline-none focus:border-border-active focus:ring-1 focus:ring-border-active transition-all disabled:opacity-60"
-                                aria-invalid={Boolean(otpForm.formState.errors.otp)}
+                                aria-invalid={Boolean(
+                                    otpForm.formState.errors.otp,
+                                )}
                             />
                         </div>
                         {otpForm.formState.errors.otp && (
@@ -310,7 +303,8 @@ export default function ForgotPassword({
                                 disabled={isPending}
                                 className="w-full bg-surface-elevated border border-border rounded-xl py-3 pl-11 pr-11 text-text-primary text-sm placeholder:text-text-disabled focus:outline-none focus:border-border-active focus:ring-1 focus:ring-border-active transition-all disabled:opacity-60"
                                 aria-invalid={Boolean(
-                                    passwordForm.formState.errors.confirmPassword,
+                                    passwordForm.formState.errors
+                                        .confirmPassword,
                                 )}
                             />
                             <button
@@ -335,8 +329,8 @@ export default function ForgotPassword({
                         {passwordForm.formState.errors.confirmPassword && (
                             <p className="mt-2 text-sm text-error">
                                 {
-                                    passwordForm.formState.errors.confirmPassword
-                                        .message
+                                    passwordForm.formState.errors
+                                        .confirmPassword.message
                                 }
                             </p>
                         )}

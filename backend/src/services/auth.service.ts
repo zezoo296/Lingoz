@@ -25,6 +25,7 @@ import {
     verifyHash,
 } from "../utils/crypto";
 import { sendPasswordResetOtpEmail } from "../services/email.service";
+import { emailQueue } from "../queues/email.queue";
 
 const GENERIC_FORGOT_PASSWORD_MESSAGE =
     "If an account with that email exists, a reset code has been sent.";
@@ -36,7 +37,6 @@ export const forgotPasswordService = async (email: string) => {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await findUserByEmail(normalizedEmail);
 
-
     if (user?.password) {
         const otp = generateOtp();
         const otpHash = hashValue(otp);
@@ -45,7 +45,24 @@ export const forgotPasswordService = async (email: string) => {
         );
 
         await updateUserPasswordResetOtp(user.id, otpHash, expiresAt);
-        await sendPasswordResetOtpEmail(normalizedEmail, otp);
+        await emailQueue.add(
+            "password-reset",
+            {
+                email,
+                otp,
+            },
+            {
+                attempts: 3,
+                backoff: {
+                    type: "exponential",
+                    delay: 5000,
+                },
+                removeOnComplete: true,
+                removeOnFail: {
+                    age: 3600,
+                },
+            },
+        );
     }
 
     return {
@@ -120,6 +137,17 @@ export const signupService = async ({ name, email, password }: SignupInput) => {
         email: normalizedEmail,
         password: hashedPassword,
     });
+
+    await emailQueue.add(
+        "welcome",
+        {
+            email,
+        },
+        {
+            removeOnComplete: true,
+            removeOnFail: true,
+        },
+    );
 
     return {
         message: "Account created. Please login to continue.",

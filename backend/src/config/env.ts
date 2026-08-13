@@ -16,6 +16,6 @@ export const config = {
         process.env.RESEND_FROM_EMAIL ?? "LinguaChat <onboarding@resend.dev>",
     passwordResetOtpExpiresInMs: 5 * 60 * 1000,
     passwordResetTokenExpiresInMs: 15 * 60 * 1000,
+    redisURL: process.env.REDIS_URL ?? "redis://redis:6379"
 };
 
-console.log(config);

@@ -49,6 +49,56 @@ services:
         networks:
             - app-network
 
+    redis:
+        image: redis:7-alpine
+        container_name: redis
+
+        restart: unless-stopped
+
+        ports:
+            - "6379:6379"
+
+        command: redis-server --save "" --appendonly no
+
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 3s
+            retries: 5
+
+        networks:
+            - app-network
+
+    worker:
+        build:
+            context: .
+            dockerfile: ./backend/Dockerfile
+
+        container_name: worker
+
+        working_dir: /app/backend
+
+        command: npm run worker
+
+        env_file:
+            - ./backend/.env
+
+        depends_on:
+            redis:
+                condition: service_healthy
+            postgres-db:
+                condition: service_healthy
+
+        volumes:
+            - ./backend:/app/backend
+            - ./shared:/app/shared
+
+            - backend_root_node_modules:/app/node_modules
+            - backend_node_modules:/app/backend/node_modules
+
+        networks:
+            - app-network
+
     frontend:
         build:
             context: .
