@@ -1,11 +1,13 @@
 import "./index.css";
-import LinguaChatAuth from "./features/auth/pages/LinguaChatAuth";
 import AppToaster from "./providers/Toaster";
+import { Outlet } from "react-router";
 
 export default function App() {
     return (
         <>
-            <LinguaChatAuth />
+            <div className="min-h-dvh bg-background">
+                <Outlet />
+            </div>
             <AppToaster />
         </>
     );

@@ -10,6 +10,7 @@ import {
     resetPasswordService,
 } from "../services/auth.service";
 import catchAsync from "../utils/catchAsync";
+import { userSchema } from "@linguachat/shared";
 
 export const signup = catchAsync(async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
@@ -78,34 +79,38 @@ export const logout = (_req: Request, res: Response) => {
 export const getCurrentUser = (req: Request, res: Response) => {
     res.status(200).json({
         status: "success",
-        data: req.user,
+        data: userSchema.parse(req.user),
     });
 };
 
-export const forgotPassword = catchAsync(async (req: Request, res: Response) => {
-    const { email } = req.body;
+export const forgotPassword = catchAsync(
+    async (req: Request, res: Response) => {
+        const { email } = req.body;
 
-    const result = await forgotPasswordService(email);
+        const result = await forgotPasswordService(email);
 
-    res.status(200).json({
-        status: "success",
-        message: result.message,
-    });
-});
+        res.status(200).json({
+            status: "success",
+            message: result.message,
+        });
+    },
+);
 
-export const verifyResetOtp = catchAsync(async (req: Request, res: Response) => {
-    const { email, otp } = req.body;
+export const verifyResetOtp = catchAsync(
+    async (req: Request, res: Response) => {
+        const { email, otp } = req.body;
 
-    const result = await verifyResetOtpService({ email, otp });
+        const result = await verifyResetOtpService({ email, otp });
 
-    res.status(200).json({
-        status: "success",
-        message: result.message,
-        data: {
-            resetToken: result.resetToken,
-        },
-    });
-});
+        res.status(200).json({
+            status: "success",
+            message: result.message,
+            data: {
+                resetToken: result.resetToken,
+            },
+        });
+    },
+);
 
 export const resetPassword = catchAsync(async (req: Request, res: Response) => {
     const { resetToken, password } = req.body;

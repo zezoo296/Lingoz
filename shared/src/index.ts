@@ -7,6 +7,8 @@ export {
     resetPasswordFormSchema,
 } from "./schemas/auth.schema";
 
+export { userSchema } from "./schemas/user.schema";
+
 export type {
     SignupInput,
     LoginInput,
@@ -15,3 +17,5 @@ export type {
     ResetPasswordInput,
     ResetPasswordFormInput,
 } from "./schemas/auth.schema";
+
+export type { AuthenticatedUser } from "./schemas/user.schema";

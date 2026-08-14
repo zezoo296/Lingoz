@@ -21,6 +21,7 @@ model User {
   passwordResetOtpExpiresAt      DateTime?
   passwordResetTokenHash         String?
   passwordResetTokenExpiresAt    DateTime?
+  hasSeenOnboarding  Boolean @default(false)
   location  Unsupported("geography")?
   @@index([location], type: Gist, map: "User_location_idx")
 }

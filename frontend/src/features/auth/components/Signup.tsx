@@ -5,7 +5,7 @@ import {
     HiOutlineMail,
     HiOutlineUser,
 } from "react-icons/hi";
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,13 +13,18 @@ import { toast } from "react-hot-toast";
 import { signup } from "../api/authApi";
 import { signupSchema, type SignupInput } from "@linguachat/shared";
 
-export default function Signup() {
+type SignupProps = {
+    onSuccess: (action: "login") => void;
+}
+
+export default function Signup({onSuccess} : SignupProps): JSX.Element {
     const [showPassword, setShowPassword] = useState(false);
 
     const { mutate, isPending } = useMutation({
         mutationFn: signup,
         onSuccess: () => {
             toast.success("Signup successful!");
+            onSuccess("login");
         },
         onError: (e) => {
             toast.error(e.message);

@@ -43,7 +43,7 @@ export default function AuthPanel() {
             {screen === "login" ? (
                 <Login onForgot={handleScreen} />
             ) : screen === "signup" ? (
-                <Signup />
+                <Signup onSuccess={handleScreen} />
             ) : (
                 <ForgotPassword
                     onBack={() => handleScreen("login")}

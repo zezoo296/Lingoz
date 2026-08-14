@@ -4,7 +4,9 @@ import type {
     ForgotPasswordInput,
     VerifyResetOtpInput,
     ResetPasswordInput,
+    AuthenticatedUser,
 } from "@linguachat/shared";
+import { userSchema } from "@linguachat/shared";
 import api from "../../../lib/api";
 
 export const signup = async (data: SignupInput) => {
@@ -35,4 +37,9 @@ export const verifyResetOtp = async (data: VerifyResetOtpInput) => {
 export const resetPassword = async (data: ResetPasswordInput) => {
     const res = await api.post("/auth/reset-password", data);
     return res.data;
+};
+
+export const getCurrentUser = async (): Promise<AuthenticatedUser> => {
+    const res = await api.get("/auth/me");
+    return userSchema.parse(res.data.data);
 };
