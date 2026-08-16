@@ -24,7 +24,6 @@ import {
     hashValue,
     verifyHash,
 } from "../utils/crypto";
-import { sendPasswordResetOtpEmail } from "../services/email.service";
 import { emailQueue } from "../queues/email.queue";
 
 const GENERIC_FORGOT_PASSWORD_MESSAGE =
@@ -178,6 +177,7 @@ export const loginService = async (email: string, pass: string) => {
         config.JWTExpiresIn,
     );
 
+    
     return {
         token,
         message: "Login Successfull",

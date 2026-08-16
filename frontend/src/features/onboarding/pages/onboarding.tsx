@@ -1,10 +1,7 @@
 import {
-    RiMessage3Fill,
     RiChat1Line,
     RiTeamLine,
     RiUserLine,
-    RiSearchLine,
-    RiNotification3Line,
     RiRocketLine,
     RiTranslate,
     RiChatNewLine,
@@ -17,7 +14,7 @@ import {
 } from "react-icons/ri";
 
 export default function Onboarding() {
-    const bgImage = "/images/earth.png";
+    const bgImage = "/images/earth.avif";
 
     return (
         <div className="min-h-screen bg-background text-text-primary font-sans relative overflow-hidden">
@@ -36,57 +33,13 @@ export default function Onboarding() {
             {/* Optional: dark overlay gradient so text stays readable */}
             <div className="fixed inset-0 z-0 pointer-events-none bg-linear-to-b from-background/60 via-transparent to-background/80" />
 
-            {/* Header */}
-            <header className="sticky top-0 z-50 bg-background-secondary/80 backdrop-blur-md shadow-2xl border-b border-border">
-                <nav className="max-w-360 mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
-                            <RiMessage3Fill className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-lg font-semibold hidden sm:inline">
-                            LinguaChat
-                        </span>
-                    </div>
-
-                    <div className="flex items-center gap-6 sm:gap-8">
-                        <button className="flex items-center gap-2 text-brand-500 font-medium border-b-2 border-brand-500 pb-4 -mb-4">
-                            <RiChat1Line className="w-4 h-4" />
-                            <span className="hidden sm:inline">Chats</span>
-                        </button>
-                        <button className="flex items-center gap-2 text-text-muted hover:text-text-secondary transition-colors pb-4 -mb-4">
-                            <RiTeamLine className="w-4 h-4" />
-                            <span className="hidden sm:inline">Network</span>
-                        </button>
-                        <button className="flex items-center gap-2 text-text-muted hover:text-text-secondary transition-colors pb-4 -mb-4">
-                            <RiUserLine className="w-4 h-4" />
-                            <span className="hidden sm:inline">Profile</span>
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-3 sm:gap-4">
-                        <button className="text-text-muted hover:text-text-secondary transition-colors">
-                            <RiSearchLine className="w-5 h-5" />
-                        </button>
-                        <button className="relative text-text-muted hover:text-text-secondary transition-colors">
-                            <RiNotification3Line className="w-5 h-5" />
-                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
-                                3
-                            </span>
-                        </button>
-                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold">
-                            Z
-                        </div>
-                    </div>
-                </nav>
-            </header>
-
             {/* Main Content */}
             <main className="relative z-10 max-w-360 mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
                 {/* Hero */}
                 <div className="flex flex-col lg:flex-row items-start justify-between gap-6 mb-8 sm:mb-10 fadeRight">
                     <div className="flex-1 min-w-0">
                         <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-                            Welcome to LinguaChat,{" "}
+                            Welcome to Lingoz,{" "}
                             <span className="text-brand-500">Zyad!</span> 👋
                         </h1>
                         <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-xl">
@@ -109,7 +62,7 @@ export default function Onboarding() {
                                 </h2>
                                 <p className="text-xs sm:text-sm text-text-muted">
                                     Complete these steps to unlock the full
-                                    LinguaChat experience.
+                                    Lingoz experience.
                                 </p>
                             </div>
                         </div>
@@ -195,10 +148,10 @@ export default function Onboarding() {
                     </div>
                 </div>
 
-                {/* Why LinguaChat */}
+                {/* Why Lingoz */}
                 <div className="mb-8 sm:mb-10 fade">
                     <h2 className="text-lg font-semibold mb-5">
-                        Why LinguaChat?
+                        Why Lingoz?
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         {/* Practice naturally */}

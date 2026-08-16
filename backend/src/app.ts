@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import authRouter from "./routes/auth.route";
+import friendshipRouter from "./routes/friendship.route";
 import globalErrorHandler from "./controllers/error.controller";
 import { config } from "./config/env";
 
@@ -9,7 +10,7 @@ export const app = express();
 
 app.use(
     cors({
-        origin: config.clientOrigin,
+        origin: [config.clientOrigin, "http://192.168.1.4:5173"],
         credentials: true,
     }),
 );
@@ -22,5 +23,6 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/friendships", friendshipRouter);
 
 app.use(globalErrorHandler);

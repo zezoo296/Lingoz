@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router";
 import App from "./App";
-import LinguaChatAuth from "./features/auth/pages/LinguaChatAuth";
+import LingozAuth from "./features/auth/pages/LingozAuth";
 import Onboarding from "./features/onboarding/pages/onboarding";
 import ProtectedRoute from "./features/auth/routes/ProtectedRoute";
 import GuestRoute from "./features/auth/routes/GuestRoute";
+import Layout from "./components/Layout";
 
 export const router = createBrowserRouter([
     {
@@ -15,7 +16,7 @@ export const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <LinguaChatAuth />,
+                        element: <LingozAuth />,
                     },
                 ],
             },
@@ -23,8 +24,13 @@ export const router = createBrowserRouter([
                 element: <ProtectedRoute />,
                 children: [
                     {
-                        path: "welcome",
-                        element: <Onboarding />,
+                        element: <Layout />,
+                        children: [
+                            {
+                                path: "welcome",
+                                element: <Onboarding />,
+                            },
+                        ],
                     },
                 ],
             },

@@ -17,7 +17,7 @@ export default function Welcome() {
                         <IoChatbubblesOutline className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-xl font-bold text-text-primary">
-                        LinguaChat
+                        Lingoz
                     </span>
                 </div>
 

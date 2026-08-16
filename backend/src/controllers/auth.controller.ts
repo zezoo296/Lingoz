@@ -29,9 +29,12 @@ export const login = catchAsync(async (req: Request, res: Response) => {
 
     const result = await loginService(email, password);
 
+    const isProdcution = process.env.NODE_ENV === "production";
+
     res.cookie("token", result.token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProdcution,
+        sameSite: isProdcution ? "none" : "lax",
     });
 
     res.status(200).json({

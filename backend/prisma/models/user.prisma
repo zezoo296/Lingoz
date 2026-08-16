@@ -24,5 +24,11 @@ model User {
   hasSeenOnboarding  Boolean @default(false)
   location  Unsupported("geography")?
   @@index([location], type: Gist, map: "User_location_idx")
+
+
+  friendships Friendship[] @relation("UserFriendships")
+  friends     Friendship[] @relation("UserFriends")
+  sentRequests     FriendRequest[] @relation("SentFriendRequests")
+  receivedRequests FriendRequest[] @relation("ReceivedFriendRequests")
 }
 
