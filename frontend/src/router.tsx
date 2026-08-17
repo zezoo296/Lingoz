@@ -5,6 +5,7 @@ import Onboarding from "./features/onboarding/pages/onboarding";
 import ProtectedRoute from "./features/auth/routes/ProtectedRoute";
 import GuestRoute from "./features/auth/routes/GuestRoute";
 import Layout from "./components/Layout";
+import ChatsPage from "./features/chats/pages/ChatsPage";
 
 export const router = createBrowserRouter([
     {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "welcome",
                                 element: <Onboarding />,
+                            },
+                            {
+                                path: "chats",
+                                element: <ChatsPage />,
                             },
                         ],
                     },

@@ -30,5 +30,8 @@ model User {
   friends     Friendship[] @relation("UserFriends")
   sentRequests     FriendRequest[] @relation("SentFriendRequests")
   receivedRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  chatParticipants ChatParticipant[]
+  sentMessages     Message[]         @relation("SentMessages")
+  messageStatuses  MessageStatus[]
 }
 

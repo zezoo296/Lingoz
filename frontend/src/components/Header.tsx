@@ -1,5 +1,6 @@
 import { RiChat1Line, RiMessage3Fill, RiNotification3Line, RiTeamLine, RiUserLine } from "react-icons/ri";
 
+
 export default function Header() {
     return (
         <header className="sticky top-0 z-50 bg-background-secondary/80 text-text-primary backdrop-blur-md shadow-2xl border-b border-border">

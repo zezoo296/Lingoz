@@ -1,0 +1,64 @@
+enum ChatType {
+  Direct
+  Group
+}
+
+enum MessageStatusType {
+  UnDelivered
+  Delivered
+  Read
+}
+
+model Chat {
+  id            String    @id @default(uuid())
+  type          ChatType
+  name          String?
+  photo         String?
+  lastMessageId String?   @unique
+  createdAt     DateTime  @default(now())
+
+  participants  ChatParticipant[]
+  messages      Message[] @relation("ChatMessages")
+  lastMessage   Message?  @relation("LastMessage", fields: [lastMessageId], references: [id], onDelete: SetNull)
+}
+
+model ChatParticipant {
+  chatId      String
+  userId      Int
+  unreadCount Int      @default(0)
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  senderId  Int
+  content   String
+  createdAt DateTime @default(now())
+
+  chat          Chat            @relation("ChatMessages", fields: [chatId], references: [id], onDelete: Cascade)
+  sender        User            @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  statuses      MessageStatus[]
+  lastMessageOf Chat?           @relation("LastMessage")
+
+  @@index([chatId, createdAt])
+  @@index([senderId])
+}
+
+model MessageStatus {
+  messageId String
+  userId    Int
+  status    MessageStatusType @default(UnDelivered)
+  updatedAt DateTime          @updatedAt
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, userId])
+  @@index([userId, status])
+}
