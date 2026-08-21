@@ -1,7 +1,14 @@
 import { RiChat1Line, RiMessage3Fill, RiNotification3Line, RiTeamLine, RiUserLine } from "react-icons/ri";
+import { logout } from "../features/auth/api/authApi";
+import { useNavigate } from "react-router";
 
 
 export default function Header() {
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
+    }
     return (
         <header className="sticky top-0 z-50 bg-background-secondary/80 text-text-primary backdrop-blur-md shadow-2xl border-b border-border">
             <nav className="max-w-360 mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4">
@@ -36,7 +43,7 @@ export default function Header() {
                             3
                         </span>
                     </button>
-                    <div className="w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold">
+                    <div className="w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold" onClick={handleLogout}>
                         Z
                     </div>
                 </div>

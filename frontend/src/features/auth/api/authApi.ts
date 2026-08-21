@@ -24,6 +24,11 @@ export const googleLogin = async (token: string) => {
     return res.data;
 };
 
+export const logout = async () => {
+    const res = await api.post("/auth/logout");
+    return res.data
+}
+
 export const forgotPassword = async (data: ForgotPasswordInput) => {
     const res = await api.post("/auth/forgot-password", data);
     return res.data;

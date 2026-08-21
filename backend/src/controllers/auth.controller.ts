@@ -68,9 +68,12 @@ export const loginWithGoogle = catchAsync(
 );
 
 export const logout = (_req: Request, res: Response) => {
+    const isProdcution = process.env.NODE_ENV === "production";
+
     res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProdcution,
+        sameSite: isProdcution ? "none" : "lax",
     });
 
     res.status(200).json({

@@ -33,10 +33,13 @@ export const createUser = (data: Prisma.UserCreateInput) => {
     });
 };
 
-export const updateUserGoogleId = (id: number, googleId: string) => {
+export const updateUser = (
+    id: number,
+    data: Prisma.UserUpdateInput,
+) => {
     return prisma.user.update({
         where: { id },
-        data: { googleId },
+        data: data,
     });
 };
 

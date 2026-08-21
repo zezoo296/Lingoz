@@ -23,7 +23,8 @@
         "ioredis": "^6.0.0",
         "jsonwebtoken": "^9.0.3",
         "pg": "^8.22.0",
-        "resend": "^6.19.0"
+        "resend": "^6.19.0",
+        "socket.io": "^4.8.3"
     },
     "devDependencies": {
         "@types/bcrypt": "^6.0.0",
@@ -36,6 +37,9 @@
         "prisma": "^7.9.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3"
+    },
+    "overrides": {
+        "deepmerge-ts": "^8.0.0"
     },
     "engines": {
         "node": ">=20.0.0"

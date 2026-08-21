@@ -39,16 +39,6 @@ export const router = createBrowserRouter([
                     },
                 ],
             },
-
-            // {
-            //     path: "profile/:id", // Modern dynamic routing path
-            //     element: <Profile />,
-            //     // Modern data approach: Fetch data before the page renders
-            //     loader: async ({ params }) => {
-            //         const res = await fetch(`https://example.com{params.id}`);
-            //         return res.json();
-            //     },
-            // },
         ],
     },
 ]);

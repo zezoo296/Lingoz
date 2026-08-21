@@ -10,7 +10,7 @@ import {
     findUserByEmail,
     findByEmailOrGoogleId,
     createUser,
-    updateUserGoogleId,
+    updateUser,
     updateUserPasswordResetOtp,
     updateUserPasswordResetToken,
     updateUserPassword,
@@ -177,7 +177,6 @@ export const loginService = async (email: string, pass: string) => {
         config.JWTExpiresIn,
     );
 
-    
     return {
         token,
         message: "Login Successfull",
@@ -206,7 +205,7 @@ export const googleLoginService = async (credential: string) => {
 
     if (user) {
         if (!user.googleId) {
-            await updateUserGoogleId(user.id, googleId);
+            await updateUser(user.id, { googleId });
         }
     } else {
         user = await createUser({

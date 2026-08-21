@@ -14,6 +14,12 @@ export {
     updateFriendRequestSchema,
 } from "./schemas/friendship.schema";
 
+export {
+    chatItemSchema,
+    chatMessagesResponseSchema,
+    messageStatusSchema,
+} from "./schemas/chat.schema";
+
 export type {
     SignupInput,
     LoginInput,
@@ -29,3 +35,26 @@ export type {
     SendFriendRequestInput,
     UpdateFriendRequestInput,
 } from "./schemas/friendship.schema";
+
+export type {
+    ChatItem,
+    ChatMessagesResponse,
+    DirectMessage,
+    GroupMessage,
+    directMessageSchema,
+    groupMessageSchema,
+} from "./schemas/chat.schema";
+
+export {
+    CHAT_EVENTS,
+    newMessageInputSchema,
+    openChatInputSchema,
+    chatOpenedSchema,
+    messagesDeliveredSchema,
+} from "./events/chat.events";
+export type {
+    NewMessageInput,
+    OpenChatInput,
+    ChatOpenedEvent,
+    MessagesDeliveredEvent,
+} from "./events/chat.events";
