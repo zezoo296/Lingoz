@@ -9,6 +9,7 @@ import {
 import AppError from "../utils/AppError";
 import prisma from "../config/prisma";
 import type { MessageStatusType } from "../generated/prisma/client";
+import { decodeMessageCursor } from "../utils/messageCursor";
 
 export const getUserChatsService = async (
     userId: number,
@@ -41,7 +42,7 @@ export const getUserChatsService = async (
 export const getChatMessagesService = async (
     chatId: string,
     userId: number,
-    page: number,
+    cursor: string | undefined,
     limit: number,
 ): Promise<ChatMessagesResponse> => {
     const ChatParticipant = await getChatParticipant(chatId, userId);
@@ -49,12 +50,11 @@ export const getChatMessagesService = async (
         throw new AppError("User doesn't have chat access.", 403);
     }
 
+    const decodedCursor = cursor ? decodeMessageCursor(cursor) : undefined;
+
     if (ChatParticipant.chat.type === "Group") {
-        const groupMessages = await getGroupChatMessagesRepo(
-            chatId,
-            page,
-            limit,
-        );
+        const { messages: groupMessages, nextCursor } =
+            await getGroupChatMessagesRepo(chatId, decodedCursor, limit);
         const messages = groupMessages.map((message) => ({
             ...message,
             client_id: null,
@@ -65,15 +65,12 @@ export const getChatMessagesService = async (
             },
         }));
 
-        return { type: "Group", messages };
+        return { type: "Group", messages, nextCursor };
     }
 
     {
-        const directMessages = await getDirectChatMessagesRepo(
-            chatId,
-            page,
-            limit,
-        );
+        const { messages: directMessages, nextCursor } =
+            await getDirectChatMessagesRepo(chatId, decodedCursor, limit);
 
         const messages = directMessages.map(({ statuses, ...message }) => ({
             ...message,
@@ -82,7 +79,7 @@ export const getChatMessagesService = async (
             status: statuses[0]?.status ?? "UnDelivered",
         }));
 
-        return { type: "Direct", messages };
+        return { type: "Direct", messages, nextCursor };
     }
 };
 

@@ -11,7 +11,7 @@ export const app = express();
 
 app.use(
     cors({
-        origin: [config.clientOrigin, "http://192.168.1.4:5173"],
+        origin: [config.clientOrigin, "http://192.168.1.8:5173"],
         credentials: true,
     }),
 );

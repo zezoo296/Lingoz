@@ -15,9 +15,14 @@ export const getUserChats = async (): Promise<ChatItem[]> => {
 
 export const getChatMessages = async (
     id: string,
-    page: number,
+    cursor: string | null,
     limit: number,
 ): Promise<ChatMessagesResponse> => {
-    const res = await api.get(`/chats/${id}?page=${page}&limit=${limit}`);
+    const res = await api.get(`/chats/${id}`, {
+        params: {
+            limit,
+            ...(cursor ? { cursor } : {}),
+        },
+    });
     return chatMessagesResponseSchema.parse(res.data.data);
 };

@@ -46,7 +46,7 @@ model Message {
   statuses      MessageStatus[]
   lastMessageOf Chat?           @relation("LastMessage")
 
-  @@index([chatId, createdAt])
+  @@index([chatId, createdAt, id])
   @@index([senderId])
 }
 

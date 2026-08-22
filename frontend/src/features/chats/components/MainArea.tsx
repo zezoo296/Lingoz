@@ -1,7 +1,7 @@
 import type { ChatItem } from "@linguachat/shared";
 import MainAreaEmptyChats from "./MainAreaEmptyChats";
 import NonActiveChats from "./NonActiveChats";
-import MainAreaActiveChat from "./MainAreaActiveChat";
+import { MainAreaActiveChat } from "./MainAreaActiveChat";
 
 interface ChatListProps {
     chats: ChatItem[];

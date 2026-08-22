@@ -61,11 +61,13 @@ export const groupMessageSchema = z.object({
 const directMessagesResponseSchema = z.object({
     type: z.literal("Direct"),
     messages: z.array(directMessageSchema),
+    nextCursor: z.string().nullable(),
 });
 
 const groupMessagesResponseSchema = z.object({
     type: z.literal("Group"),
     messages: z.array(groupMessageSchema),
+    nextCursor: z.string().nullable(),
 });
 
 export const chatMessagesResponseSchema = z.discriminatedUnion("type", [

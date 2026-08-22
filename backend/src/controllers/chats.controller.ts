@@ -15,12 +15,14 @@ export const getUserChats = catchAsync(async (req, res) => {
 export const getChatMessages = catchAsync(async (req, res) => {
     const userId = req.user?.id || 0;
     const chatId = req.params.id;
-    const { page, limit } = req.query;
+    const cursor =
+        typeof req.query.cursor === "string" ? req.query.cursor : undefined;
+    const limit = Number(req.query.limit) || 20;
     const messages = await getChatMessagesService(
         chatId,
         userId,
-        Number(page),
-        Number(limit),
+        cursor,
+        limit,
     );
     
     res.status(200).json({status: "success", data: messages});

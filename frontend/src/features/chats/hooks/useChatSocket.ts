@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { type InfiniteData, useQueryClient } from "@tanstack/react-query";
 import {
     CHAT_EVENTS,
     type ChatOpenedEvent,
@@ -40,7 +40,7 @@ export function useChatSocket() {
             /*
              * 1. Update the chat list
              */
-            queryClient.setQueryData<ChatItem[]>(["chats"], (oldChats: any) => {
+            queryClient.setQueryData<ChatItem[]>(["chats"], (oldChats) => {
                 if (!oldChats) return oldChats;
 
                 return oldChats.map((chatItem: ChatItem) => {
@@ -86,8 +86,8 @@ export function useChatSocket() {
                                 {
                                     userId:
                                         newMessage.senderId === currentUser?.id
-                                            ? newMessage.recieverId
-                                            : currentUser?.id,
+                                            ? (newMessage.recieverId ?? currentUser.id)
+                                            : (currentUser?.id ?? newMessage.senderId),
                                     status: newMessage.status,
                                 },
                             ],
@@ -103,35 +103,41 @@ export function useChatSocket() {
             /*
              * 2. Update messages for the specific chat
              */
-            queryClient.setQueryData<ChatMessagesResponse>(
+            queryClient.setQueryData<InfiniteData<ChatMessagesResponse, string | null>>(
                 chatMessagesQueryKey(newMessage.chatId),
                 (oldMessages) => {
                     if (!oldMessages) {
                         return oldMessages;
                     }
 
-                    if (oldMessages.type === "Direct") {
+                    const newestPage = oldMessages.pages[0];
+                    if (!newestPage) return oldMessages;
+
+                    if (newestPage.type === "Direct") {
                         if (isGroupMessage(newMessage)) {
                             return oldMessages;
                         }
 
-                        const optimisticIndex = oldMessages.messages.findIndex(
+                        const optimisticIndex = newestPage.messages.findIndex(
                             (message) => message.id === newMessage.client_id,
                         );
 
                         if (optimisticIndex !== -1) {
-                            const messages = [...oldMessages.messages];
+                            const messages = [...newestPage.messages];
                             messages[optimisticIndex] = newMessage;
 
                             return {
                                 ...oldMessages,
-                                messages,
+                                pages: [{ ...newestPage, messages }, ...oldMessages.pages.slice(1)],
                             };
                         }
 
                         return {
                             ...oldMessages,
-                            messages: [newMessage, ...oldMessages.messages],
+                            pages: [
+                                { ...newestPage, messages: [newMessage, ...newestPage.messages] },
+                                ...oldMessages.pages.slice(1),
+                            ],
                         };
                     }
 
@@ -140,23 +146,26 @@ export function useChatSocket() {
                         return oldMessages;
                     }
 
-                    const optimisticIndex = oldMessages.messages.findIndex(
+                    const optimisticIndex = newestPage.messages.findIndex(
                         (message) => message.id === newMessage.client_id,
                     );
 
                     if (optimisticIndex !== -1) {
-                        const messages = [...oldMessages.messages];
+                        const messages = [...newestPage.messages];
                         messages[optimisticIndex] = newMessage;
 
                         return {
                             ...oldMessages,
-                            messages,
+                            pages: [{ ...newestPage, messages }, ...oldMessages.pages.slice(1)],
                         };
                     }
 
                     return {
                         ...oldMessages,
-                        messages: [newMessage, ...oldMessages.messages],
+                        pages: [
+                            { ...newestPage, messages: [newMessage, ...newestPage.messages] },
+                            ...oldMessages.pages.slice(1),
+                        ],
                     };
                 },
             );
@@ -189,36 +198,39 @@ export function useChatSocket() {
             });
 
             //Messages
-            queryClient.setQueryData<ChatMessagesResponse>(
+            queryClient.setQueryData<InfiniteData<ChatMessagesResponse, string | null>>(
                 chatMessagesQueryKey(chatId),
                 (oldMessages) => {
                     if (!oldMessages) return oldMessages;
 
-                    if (oldMessages.type === "Direct") {
-                        if (!currentUser || currentUser.id === userId) {
-                            return oldMessages;
-                        }
-
-                        return {
-                            ...oldMessages,
-                            messages: oldMessages.messages.map((message) =>
-                                message.senderId === currentUser.id
-                                    ? { ...message, status: "Read" as const }
-                                    : message,
-                            ),
-                        };
-                    }
-
                     return {
                         ...oldMessages,
-                        messages: oldMessages.messages.map((message) => ({
-                            ...message,
-                            statuses: message.statuses.map((status) =>
-                                status.userId === userId
-                                    ? { ...status, status: "Read" as const }
-                                    : status,
-                            ),
-                        })),
+                        pages: oldMessages.pages.map((page) => {
+                            if (page.type === "Direct") {
+                                if (!currentUser || currentUser.id === userId) return page;
+
+                                return {
+                                    ...page,
+                                    messages: page.messages.map((message) =>
+                                        message.senderId === currentUser.id
+                                            ? { ...message, status: "Read" as const }
+                                            : message,
+                                    ),
+                                };
+                            }
+
+                            return {
+                                ...page,
+                                messages: page.messages.map((message) => ({
+                                    ...message,
+                                    statuses: message.statuses.map((status) =>
+                                        status.userId === userId
+                                            ? { ...status, status: "Read" as const }
+                                            : status,
+                                    ),
+                                })),
+                            };
+                        }),
                     };
                 },
             );
@@ -253,44 +265,41 @@ export function useChatSocket() {
                 );
             });
 
-            queryClient.setQueryData<ChatMessagesResponse>(
+            queryClient.setQueryData<InfiniteData<ChatMessagesResponse, string | null>>(
                 chatMessagesQueryKey(chatId),
                 (oldMessages) => {
                     if (!oldMessages) return oldMessages;
 
-                    if (oldMessages.type === "Direct") {
-                        if (!currentUser || currentUser.id === userId) {
-                            return oldMessages;
-                        }
-
-                        return {
-                            ...oldMessages,
-                            messages: oldMessages.messages.map((message) =>
-                                message.senderId === currentUser.id &&
-                                message.status === "UnDelivered"
-                                    ? {
-                                          ...message,
-                                          status: "Delivered" as const,
-                                      }
-                                    : message,
-                            ),
-                        };
-                    }
-
                     return {
                         ...oldMessages,
-                        messages: oldMessages.messages.map((message) => ({
-                            ...message,
-                            statuses: message.statuses.map((status) =>
-                                status.userId === userId &&
-                                status.status === "UnDelivered"
-                                    ? {
-                                          ...status,
-                                          status: "Delivered" as const,
-                                      }
-                                    : status,
-                            ),
-                        })),
+                        pages: oldMessages.pages.map((page) => {
+                            if (page.type === "Direct") {
+                                if (!currentUser || currentUser.id === userId) return page;
+
+                                return {
+                                    ...page,
+                                    messages: page.messages.map((message) =>
+                                        message.senderId === currentUser.id &&
+                                        message.status === "UnDelivered"
+                                            ? { ...message, status: "Delivered" as const }
+                                            : message,
+                                    ),
+                                };
+                            }
+
+                            return {
+                                ...page,
+                                messages: page.messages.map((message) => ({
+                                    ...message,
+                                    statuses: message.statuses.map((status) =>
+                                        status.userId === userId &&
+                                        status.status === "UnDelivered"
+                                            ? { ...status, status: "Delivered" as const }
+                                            : status,
+                                    ),
+                                })),
+                            };
+                        }),
                     };
                 },
             );

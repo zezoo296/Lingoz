@@ -1,5 +1,37 @@
 import { Prisma } from "@prisma/client/extension";
 import prisma from "../config/prisma";
+import {
+    encodeMessageCursor,
+    type MessageCursor,
+} from "../utils/messageCursor";
+
+const olderThanCursor = (cursor: MessageCursor) => ({
+    OR: [
+        { createdAt: { lt: cursor.createdAt } },
+        {
+            createdAt: cursor.createdAt,
+            id: { lt: cursor.id },
+        },
+    ],
+});
+
+const paginateMessages = <T extends { id: string; createdAt: Date }>(
+    rows: T[],
+    limit: number,
+) => {
+    const hasMore = rows.length > limit;
+    const messages = hasMore ? rows.slice(0, limit) : rows;
+    const lastMessage = messages[messages.length - 1];
+    const nextCursor =
+        hasMore && lastMessage
+            ? encodeMessageCursor({
+                  createdAt: lastMessage.createdAt,
+                  id: lastMessage.id,
+              })
+            : null;
+
+    return { messages, nextCursor };
+};
 
 export const getUserChatsIds = (userId: number) => {
     return prisma.chatParticipant.findMany({
@@ -102,14 +134,15 @@ export const getChatParticipants = (chatId: string) => {
     });
 };
 
-export const getGroupChatMessagesRepo = (
+export const getGroupChatMessagesRepo = async (
     chatId: string,
-    page: number = 1,
+    cursor?: MessageCursor,
     limit: number = 20,
 ) => {
-    return prisma.message.findMany({
+    const rows = await prisma.message.findMany({
         where: {
             chatId: chatId,
+            ...(cursor ? olderThanCursor(cursor) : {}),
         },
         select: {
             id: true,
@@ -139,19 +172,21 @@ export const getGroupChatMessagesRepo = (
                 id: "desc",
             },
         ],
-        skip: page * limit - limit,
-        take: limit,
+        take: limit + 1,
     });
+
+    return paginateMessages(rows, limit);
 };
 
-export const getDirectChatMessagesRepo = (
+export const getDirectChatMessagesRepo = async (
     chatId: string,
-    page: number = 1,
+    cursor?: MessageCursor,
     limit: number = 20,
 ) => {
-    return prisma.message.findMany({
+    const rows = await prisma.message.findMany({
         where: {
             chatId,
+            ...(cursor ? olderThanCursor(cursor) : {}),
         },
         select: {
             id: true,
@@ -173,9 +208,10 @@ export const getDirectChatMessagesRepo = (
                 id: "desc",
             },
         ],
-        skip: (page - 1) * limit,
-        take: limit,
+        take: limit + 1,
     });
+
+    return paginateMessages(rows, limit);
 };
 
 export const resetChatUnreadCount = async (
