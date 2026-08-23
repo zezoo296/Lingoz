@@ -1,6 +1,15 @@
 import type { ChatItem } from "@linguachat/shared";
 import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
-import { RiCheckLine, RiCheckDoubleLine } from "react-icons/ri";
+import {
+    RiCheckLine,
+    RiCheckDoubleLine,
+    RiMore2Fill,
+    RiStarFill,
+} from "react-icons/ri";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { toggleChatFavourite } from "../api/chatApi";
 import {
     formatMessageTime,
     getLastMessageDeliveryStatus,
@@ -43,6 +52,39 @@ export default function ChatsPreview({
 }: ChatsPreview) {
     const { data: currentUser } = useCurrentUser();
     const currentUserId = currentUser?.id;
+
+    const [menuChatId, setMenuChatId] = useState<string>();
+    const queryClient = useQueryClient();
+
+    const toggleFavouriteMutation = useMutation({
+        mutationFn: (chat: ChatItem) => toggleChatFavourite(chat.id),
+        onMutate: (chat) => {
+            const previousChats = queryClient.getQueryData<ChatItem[]>([
+                "chats",
+            ]);
+
+            queryClient.setQueryData<ChatItem[]>(["chats"], (oldChats) =>
+                oldChats?.map((chatItem) =>
+                    chatItem.id === chat.id
+                        ? { ...chatItem, isFavourite: !chatItem.isFavourite }
+                        : chatItem,
+                ),
+            );
+
+            return { previousChats };
+        },
+        onSuccess: (_data, chat) => {
+            toast.success(
+                chat.isFavourite
+                    ? "Removed from favourites"
+                    : "Added to favourites",
+            );
+        },
+        onError: (_error, _chat, context) => {
+            queryClient.setQueryData(["chats"], context?.previousChats);
+            toast.error("Unable to update favourites. Please try again.");
+        },
+    });
     return chats.map((chat) => {
         const isActive = chat.id === activeChatId;
         const hasUnread =
@@ -54,7 +96,7 @@ export default function ChatsPreview({
                 key={chat.id}
                 onClick={() => onChatClick?.(chat)}
                 className={[
-                    "flex items-start gap-3 p-4 cursor-pointer transition-colors border-l-2",
+                    "flex relative items-start gap-3 p-4 cursor-pointer transition-colors border-l-2",
                     isActive
                         ? "bg-surface-elevated/70 border-brand-500"
                         : hasUnread
@@ -126,6 +168,45 @@ export default function ChatsPreview({
                         {chat.unreadCount > 9 ? "9+" : chat.unreadCount}
                     </span>
                 )}
+
+                <div className="absolute right-3 bottom-2 shrink-0">
+                    <button
+                        type="button"
+                        aria-label={`Chat actions for ${chat.name}`}
+                        aria-expanded={menuChatId === chat.id}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            setMenuChatId((currentId) =>
+                                currentId === chat.id ? undefined : chat.id,
+                            );
+                        }}
+                        className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-hover transition-colors"
+                    >
+                        <RiMore2Fill className="w-5 h-5" />
+                    </button>
+
+                    {menuChatId === chat.id && (
+                        <div
+                            className="absolute right-0 top-full z-10 mt-1 w-48 rounded-lg border border-border bg-surface p-1 shadow-lg"
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            <button
+                                type="button"
+                                disabled={toggleFavouriteMutation.isPending}
+                                onClick={() => {
+                                    toggleFavouriteMutation.mutate(chat);
+                                    setMenuChatId(undefined);
+                                }}
+                                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <RiStarFill className="w-4 h-4 text-brand-500" />
+                                {chat.isFavourite
+                                    ? "Remove from favourites"
+                                    : "Add to favourites"}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     });

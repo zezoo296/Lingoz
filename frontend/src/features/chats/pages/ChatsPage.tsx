@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ChatItem } from "@linguachat/shared";
 import { getUserChats } from "../api/chatApi";
@@ -8,6 +8,7 @@ import Suggested from "../components/Suggested";
 import { socket } from "../../../sockets/socket";
 import { CHAT_EVENTS } from "@linguachat/shared";
 import { useQueryClient } from "@tanstack/react-query";
+import type { Tabs } from "../lib/helpers";
 
 export default function ChatsPage() {
     const [activeChatId, setActiveChatId] = useState<string>();
@@ -16,6 +17,37 @@ export default function ChatsPage() {
         queryKey: ["chats"],
         queryFn: getUserChats,
     });
+    const [selectedTab, setSelectedTab] = useState<Tabs>("All");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const displayedChats = useMemo(() => {
+        const tabChats = (() => {
+            switch (selectedTab) {
+                case "Unread":
+                    return chats.filter((chat) => chat.unreadCount > 0);
+
+                case "Group":
+                    return chats.filter((chat) => chat.type === "Group");
+
+                case "Favourites":
+                    return chats.filter((chat) => chat.isFavourite === true);
+
+                case "All":
+                default:
+                    return chats;
+            }
+        })();
+
+        const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+
+        if (!normalizedSearchQuery) {
+            return tabChats;
+        }
+
+        return tabChats.filter((chat) =>
+            chat.name.toLowerCase().includes(normalizedSearchQuery),
+        );
+    }, [chats, searchQuery, selectedTab]);
 
     const queryClient = useQueryClient();
 
@@ -59,7 +91,7 @@ export default function ChatsPage() {
     const showMainAreaMobile = activeChatId && selectedChat;
 
     return (
-        <div className="flex flex-col lg:flex-row">
+        <div className="flex flex-col lg:flex-row ">
             <aside
                 className={`
                     w-full lg:w-80 xl:w-96 bg-surface border-r border-border flex flex-col shrink-0
@@ -67,10 +99,14 @@ export default function ChatsPage() {
                 `}
             >
                 <ChatList
-                    chats={chats}
+                    chats={displayedChats}
                     activeChatId={activeChatId}
                     onChatClick={handleChatClick}
+                    onTabChange={(tab) => setSelectedTab(tab)}
                     onNewChat={() => console.log("New chat")}
+                    selectedTab={selectedTab}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
                 />
                 {chats.length <= 2 && <Suggested />}
             </aside>

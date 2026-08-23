@@ -14,7 +14,7 @@ export function ChatHeader({ name, photo, type, onBack }: ChatHeaderProps) {
             {onBack && (
                 <button
                     onClick={onBack}
-                    className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-surface-elevated transition-colors text-text-secondary"
+                    className="p-2 -ml-2 rounded-lg hover:bg-surface-elevated transition-colors text-text-secondary"
                     aria-label="Back to chat list"
                 >
                     <RiArrowLeftLine className="w-5 h-5" />

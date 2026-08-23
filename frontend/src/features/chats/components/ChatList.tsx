@@ -4,23 +4,35 @@ import EmptyChats from "./EmptyChats";
 import SearchChats from "./SearchChats";
 import TabsChats from "./TabsChats";
 import ChatsPreview from "./ChatsPreview";
+import type { Tabs } from "../lib/helpers";
 
 interface ChatListProps {
     chats: ChatItem[];
     activeChatId?: string;
     onChatClick?: (chat: ChatItem) => void;
     onNewChat?: () => void;
+    onTabChange: (arg0: Tabs) => void;
+    selectedTab: Tabs;
+    searchQuery: string;
+    onSearchChange: (query: string) => void;
 }
 
 export default function ChatList({
     chats,
     activeChatId,
     onChatClick,
+    onTabChange,
+    selectedTab,
+    searchQuery,
+    onSearchChange,
 }: ChatListProps) {
     return (
         <>
-            <SearchChats />
-            <TabsChats />
+            <SearchChats
+                searchQuery={searchQuery}
+                onSearchChange={onSearchChange}
+            />
+            <TabsChats onTabChange={onTabChange} selectedTab={selectedTab}/>
 
             <div className="flex-1 overflow-y-auto my-2 max-h-[57vh] lg:max-h-[60vh]">
                 {chats.length === 0 ? (

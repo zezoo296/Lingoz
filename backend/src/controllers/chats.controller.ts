@@ -1,9 +1,11 @@
 import type {} from "../types/express";
 import {
+    toggleChatFavouritesService,
     getChatMessagesService,
     getUserChatsService,
 } from "../services/chats.service";
 import catchAsync from "../utils/catchAsync";
+import AppError from "../utils/AppError";
 
 export const getUserChats = catchAsync(async (req, res) => {
     const userId: number = req.user?.id || 0; //Can't be 0 won't pass protect middleware
@@ -27,3 +29,15 @@ export const getChatMessages = catchAsync(async (req, res) => {
     
     res.status(200).json({status: "success", data: messages});
 });
+
+
+export const toggleChatFavourites = catchAsync(async (req, res) => {
+    const userId = req.user?.id;
+    const chatId = req.params.id;
+    if(!userId || !chatId)
+        throw new AppError("Incomplete params", 400);
+
+    await toggleChatFavouritesService(chatId, userId);
+    
+    res.status(200).json({status: "succcess"});
+})

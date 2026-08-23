@@ -11,7 +11,7 @@ export const app = express();
 
 app.use(
     cors({
-        origin: [config.clientOrigin, "http://192.168.1.8:5173"],
+        origin: [config.clientOrigin, "http://192.168.1.6:5173"],
         credentials: true,
     }),
 );
@@ -26,6 +26,5 @@ app.get("/", (_req, res) => {
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/friendships", friendshipRouter);
 app.use("/api/v1/chats", chatsRouter);
-
 
 app.use(globalErrorHandler);

@@ -137,3 +137,6 @@ export function createOptimisticMessage(
         status: "UnDelivered",
     };
 }
+
+
+export type Tabs = "All" | "Unread" | "Favourites" | "Group"

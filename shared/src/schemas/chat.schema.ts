@@ -5,7 +5,7 @@ export const messageStatusSchema = z.enum(["UnDelivered", "Delivered", "Read"]);
 export const chatItemSchema = z.object({
     id: z.string(),
     type: z.enum(["Direct", "Group"]),
-
+    isFavourite: z.boolean,
     name: z.string(),
     photo: z.string(),
     lastMessage: z.object({

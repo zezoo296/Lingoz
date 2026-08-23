@@ -27,7 +27,7 @@ export default function Onboarding() {
                     width: "800px",
                     height: "800px",
                     opacity: 0.5,
-                    animation: "spin 5s linear infinite alternate",
+                    animation: "spinEarth 5s linear infinite alternate",
                 }}
             />
             {/* Optional: dark overlay gradient so text stays readable */}
@@ -150,9 +150,7 @@ export default function Onboarding() {
 
                 {/* Why Lingoz */}
                 <div className="mb-8 sm:mb-10 fade">
-                    <h2 className="text-lg font-semibold mb-5">
-                        Why Lingoz?
-                    </h2>
+                    <h2 className="text-lg font-semibold mb-5">Why Lingoz?</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         {/* Practice naturally */}
                         <div className="bg-surface/90 backdrop-blur-sm border border-border rounded-xl p-5 hover:border-border-hover transition-colors">

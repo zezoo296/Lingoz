@@ -62,6 +62,7 @@ export const getUserChats = (userId: number) => {
                     type: true,
                     name: true,
                     photo: true,
+                    isFavourite: true,
                     participants: {
                         where: {
                             userId: {
@@ -283,4 +284,12 @@ export const markUndeliveredMessagesDelivered = async (userId: number) => {
 
         return [...new Set(statuses.map((status) => status.message.chatId))];
     });
+};
+
+export const toggleChatFavouritesRepo = (chatId: string) => {
+    return prisma.$executeRaw`
+        UPDATE "Chat" 
+        SET "isFavourite" = NOT "isFavourite" 
+        WHERE "id" = ${chatId}
+    `;
 };

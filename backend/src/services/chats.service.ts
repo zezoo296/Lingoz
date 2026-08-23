@@ -1,3 +1,4 @@
+import { toggleChatFavouritesRepo } from './../repositories/chats.repository';
 import type { NewMessageInput } from "@linguachat/shared";
 import type { ChatItem, ChatMessagesResponse } from "@linguachat/shared";
 import {
@@ -23,6 +24,7 @@ export const getUserChatsService = async (
         return {
             id: chat.id,
             type: chat.type,
+            isFavourite: chat.isFavourite,
             name: isGroup ? chat.name! : otherParticipant?.name!,
             photo: isGroup ? chat.photo! : otherParticipant?.photo!,
             lastMessage: {
@@ -90,6 +92,7 @@ type RecipientMessageState = {
 };
 
 export const createMessageService = async (
+    //must be called from inside socket after making sure user belongs to chat
     message: NewMessageInput,
     userId: number,
     recipientStates: RecipientMessageState[],
@@ -174,4 +177,15 @@ export const openChatService = async (chatId: string, userId: number) => {
 
         await markMessagesRead(tx, chatId, userId);
     });
+};
+
+export const toggleChatFavouritesService = async (
+    chatId: string,
+    userId: number,
+) => {
+    const ChatParticipant = await getChatParticipant(chatId, userId);
+    if (!ChatParticipant) {
+        throw new AppError("User doesn't have chat access.", 403);
+    }
+    await toggleChatFavouritesRepo(chatId);
 };

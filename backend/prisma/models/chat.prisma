@@ -16,6 +16,7 @@ model Chat {
   photo         String?
   lastMessageId String?   @unique
   createdAt     DateTime  @default(now())
+  isFavourite   Boolean   @default(false)
 
   participants  ChatParticipant[]
   messages      Message[] @relation("ChatMessages")

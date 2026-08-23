@@ -26,3 +26,8 @@ export const getChatMessages = async (
     });
     return chatMessagesResponseSchema.parse(res.data.data);
 };
+
+export const toggleChatFavourite = async (chatId: string) => {
+    const res = await api.post(`/chats/${chatId}/favourite`);
+    return res.data;
+};

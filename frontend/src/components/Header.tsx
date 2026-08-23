@@ -1,14 +1,33 @@
-import { RiChat1Line, RiMessage3Fill, RiNotification3Line, RiTeamLine, RiUserLine } from "react-icons/ri";
+import {
+    RiChat1Line,
+    RiMessage3Fill,
+    RiNotification3Line,
+    RiTeamLine,
+    RiUserLine,
+} from "react-icons/ri";
 import { logout } from "../features/auth/api/authApi";
-import { useNavigate } from "react-router";
-
+import { useLocation, useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const navigationItems = [
+        { label: "Chats", path: "/chats", icon: RiChat1Line },
+        { label: "Network", path: "/network", icon: RiTeamLine },
+        { label: "Profile", path: "/profile", icon: RiUserLine },
+    ];
+    const queryClient = useQueryClient();
+
     const handleLogout = async () => {
         await logout();
-        navigate("/");
-    }
+        
+        queryClient.removeQueries({
+            queryKey: ["current-user"],
+        });
+
+        navigate("/", { viewTransition: true });
+    };
     return (
         <header className="sticky top-0 z-50 bg-background-secondary/80 text-text-primary backdrop-blur-md shadow-2xl border-b border-border">
             <nav className="max-w-360 mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4">
@@ -22,18 +41,31 @@ export default function Header() {
                 </div>
 
                 <div className="flex items-center gap-6 sm:gap-8">
-                    <button className="flex items-center gap-2 text-brand-500 font-medium border-b-2 border-brand-500 pb-4 -mb-4" title="Chats">
-                        <RiChat1Line className="w-6 h-6 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">Chats</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-text-muted hover:text-text-secondary transition-colors pb-4 -mb-4" title="Network">
-                        <RiTeamLine className="w-6 h-6 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">Network</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-text-muted hover:text-text-secondary transition-colors pb-4 -mb-4" title="Profile">
-                        <RiUserLine className="w-6 h-6 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">Profile</span>
-                    </button>
+                    {navigationItems.map(({ label, path, icon: Icon }) => {
+                        const isActive = location.pathname === path;
+
+                        return (
+                            <button
+                                key={path}
+                                type="button"
+                                onClick={() =>
+                                    navigate(path, { viewTransition: true })
+                                }
+                                className={`flex items-center gap-2 pb-4 -mb-4 transition-colors ${
+                                    isActive
+                                        ? "text-brand-500 font-medium border-b-2 border-brand-500"
+                                        : "text-text-muted hover:text-text-secondary"
+                                }`}
+                                title={label}
+                                aria-current={isActive ? "page" : undefined}
+                            >
+                                <Icon className="w-6 h-6 sm:w-4 sm:h-4" />
+                                <span className="hidden sm:inline">
+                                    {label}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
 
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -43,7 +75,10 @@ export default function Header() {
                             3
                         </span>
                     </button>
-                    <div className="w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold" onClick={handleLogout}>
+                    <div
+                        className="w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold"
+                        onClick={handleLogout}
+                    >
                         Z
                     </div>
                 </div>

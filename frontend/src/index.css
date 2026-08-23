@@ -89,6 +89,12 @@ button {
     cursor: pointer;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.2s;
+    animation-timing-function: ease-in-out;
+}
+
 .fadeLeft {
     animation: fadeLeftAnimation 0.5s;
     animation-fill-mode: forwards;
@@ -150,7 +156,7 @@ button {
         opacity: 1;
     }
 }
-@keyframes spin {
+@keyframes spinEarth {
     from {
         transform: rotate(0deg);
     }
