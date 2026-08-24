@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ChatItem } from "@linguachat/shared";
 import { getUserChats } from "../api/chatApi";
@@ -9,6 +9,8 @@ import { socket } from "../../../sockets/socket";
 import { CHAT_EVENTS } from "@linguachat/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Tabs } from "../lib/helpers";
+import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
+import { fetchAndCacheMessageSuggestions } from "../lib/messageSuggestions";
 
 export default function ChatsPage() {
     const [activeChatId, setActiveChatId] = useState<string>();
@@ -19,6 +21,7 @@ export default function ChatsPage() {
     });
     const [selectedTab, setSelectedTab] = useState<Tabs>("All");
     const [searchQuery, setSearchQuery] = useState("");
+    const { data: currentUser } = useCurrentUser();
 
     const displayedChats = useMemo(() => {
         const tabChats = (() => {
@@ -51,17 +54,26 @@ export default function ChatsPage() {
 
     const queryClient = useQueryClient();
 
-    const handleChatClick = (chat: ChatItem) => {
-        if (chat.id === activeChatId) {
-            socket.emit(CHAT_EVENTS.CLOSE_CHAT, { chatId: chat.id });
+    useEffect(() => {
+        if (!activeChatId) return;
 
+        socket.emit(CHAT_EVENTS.OPEN_CHAT, {
+            chatId: activeChatId,
+        });
+
+        return () => {
+            socket.emit(CHAT_EVENTS.CLOSE_CHAT, {
+                chatId: activeChatId,
+            });
+        };
+    }, [activeChatId]);
+
+    const handleChatClick = async (chat: ChatItem) => {
+        if (chat.id === activeChatId) {
             setActiveChatId(undefined);
             setSelectedChat(undefined);
-
             return;
         }
-
-        socket.emit(CHAT_EVENTS.OPEN_CHAT, { chatId: chat.id });
 
         setActiveChatId(chat.id);
         setSelectedChat(chat);
@@ -80,10 +92,37 @@ export default function ChatsPage() {
                 );
             });
         }
+
+        const lastMessage = chat.lastMessage;
+        if (
+            lastMessage &&
+            lastMessage.sender.id !== currentUser?.id &&
+            lastMessage.suggestions === null
+        ) {
+            const messageSuggestions = await fetchAndCacheMessageSuggestions(
+                queryClient,
+                chat.id,
+                lastMessage.id,
+            );
+
+            if (messageSuggestions) {
+                setSelectedChat((currentChat) =>
+                    currentChat?.id === chat.id &&
+                    currentChat.lastMessage.id === lastMessage.id
+                        ? {
+                              ...currentChat,
+                              lastMessage: {
+                                  ...currentChat.lastMessage,
+                                  suggestions: messageSuggestions,
+                              },
+                          }
+                        : currentChat,
+                );
+            }
+        }
     };
 
     const handleBackToList = () => {
-        socket.emit(CHAT_EVENTS.CLOSE_CHAT, { chatId: activeChatId });
         setActiveChatId(undefined);
         setSelectedChat(undefined);
     };

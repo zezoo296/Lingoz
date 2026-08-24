@@ -41,6 +41,8 @@ model Message {
   senderId  Int
   content   String
   createdAt DateTime @default(now())
+  suggestions Json?
+
 
   chat          Chat            @relation("ChatMessages", fields: [chatId], references: [id], onDelete: Cascade)
   sender        User            @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)

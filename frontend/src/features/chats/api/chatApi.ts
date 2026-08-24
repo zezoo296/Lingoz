@@ -31,3 +31,12 @@ export const toggleChatFavourite = async (chatId: string) => {
     const res = await api.post(`/chats/${chatId}/favourite`);
     return res.data;
 };
+
+export const getMessageSuggestions = async (
+    messageId: string,
+): Promise<string[]> => {
+    const res = await api.post("/chats/ai/message-suggestions", {
+        messageId,
+    });
+    return res.data.data;
+};

@@ -7,7 +7,10 @@ import { ChatHeader } from "./ChatHeader";
 import { MessageInput } from "./MessageInput";
 import { MessageList } from "./MessageList";
 import type { ChatItem, ChatMessagesResponse } from "@linguachat/shared";
-import type { Message } from "../lib/helpers";
+import {
+    isMessageSentByCurrentUser,
+    type Message,
+} from "../lib/helpers";
 
 interface MainAreaActiveChatProps {
     activeChatId: string;
@@ -34,6 +37,17 @@ export function MainAreaActiveChat({
 
     const messages = extractMessages(data);
     const messageCount = messages.length;
+    const latestMessage = messages[0];
+    const suggestions = latestMessage
+        ? isMessageSentByCurrentUser(latestMessage, currentUser?.id)
+            ? []
+            : (latestMessage.suggestions?.suggestions ??
+              (latestMessage.id === selectedChat.lastMessage.id
+                  ? (selectedChat.lastMessage.suggestions?.suggestions ?? [])
+                  : []))
+        : selectedChat.lastMessage.sender.id !== currentUser?.id
+          ? (selectedChat.lastMessage.suggestions?.suggestions ?? [])
+          : [];
 
     const {
         containerRef,
@@ -105,6 +119,7 @@ export function MainAreaActiveChat({
                 chatName={selectedChat.name}
                 onSend={handleSend}
                 disabled={isPending}
+                suggestions={suggestions}
             />
         </div>
     );

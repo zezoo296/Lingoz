@@ -12,10 +12,7 @@ import type {
 import { CHAT_EVENTS } from "@linguachat/shared";
 import { socket } from "../../../sockets/socket";
 import { chatMessagesQueryKey, getChatMessages } from "../api/chatApi";
-import {
-    createOptimisticMessage,
-    isGroupMessage,
-} from "../lib/helpers";
+import { createOptimisticMessage, isGroupMessage } from "../lib/helpers";
 
 export function useChatMessages(chatId: string) {
     return useInfiniteQuery<
@@ -97,6 +94,7 @@ export function useSendMessage(chatId: string, chatType: "Direct" | "Group") {
                         ? {
                               ...chat,
                               lastMessage: {
+                                  id: optimisticMessage.id,
                                   content,
                                   created_at:
                                       optimisticMessage.createdAt.toISOString(),
@@ -105,6 +103,7 @@ export function useSendMessage(chatId: string, chatType: "Direct" | "Group") {
                                       name: currentUser.name || "unknown",
                                   },
                                   statuses: [],
+                                  suggestions: null,
                               },
                           }
                         : chat,

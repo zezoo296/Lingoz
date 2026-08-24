@@ -85,7 +85,6 @@ export const newMessageHandler = async (
             }),
     );
 
-    console.log(recipientStates);
 
     const message = await createMessageService(
         parsedData.data,
@@ -103,6 +102,7 @@ export const newMessageHandler = async (
                       status,
                       updatedAt: message.createdAt,
                   })),
+                  suggestions: null,
               }
             : {
                   id: message.id,
@@ -113,6 +113,7 @@ export const newMessageHandler = async (
                   senderId: message.senderId,
                   recieverId: recipientStates[0]?.userId,
                   status: recipientStates[0]?.status ?? "UnDelivered",
+                  suggestions: null,
               };
 
     if (chatParticipant.chat.type === "Group") {
@@ -163,10 +164,9 @@ export const openChatHandler = async (
         };
 
         if (participant.chat.type === "Group") {
-            socket.to(chatRoom(parsedData.data.chatId)).emit(
-                CHAT_EVENTS.OPEN_CHAT,
-                payload,
-            );
+            socket
+                .to(chatRoom(parsedData.data.chatId))
+                .emit(CHAT_EVENTS.OPEN_CHAT, payload);
         } else {
             const participants = await getChatParticipants(
                 parsedData.data.chatId,
@@ -211,10 +211,9 @@ export const chatsJoiningHandler = async (socket: Socket, io: Server) => {
         const payload = { chatId, userId };
 
         if (participant.chat.type === "Group") {
-            socket.to(chatRoom(chatId)).emit(
-                CHAT_EVENTS.MESSAGES_DELIVERED,
-                payload,
-            );
+            socket
+                .to(chatRoom(chatId))
+                .emit(CHAT_EVENTS.MESSAGES_DELIVERED, payload);
         } else {
             const participants = await getChatParticipants(chatId);
             for (const { userId: participantId } of participants) {

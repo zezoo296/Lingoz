@@ -80,6 +80,7 @@ export const getUserChats = (userId: number) => {
                     },
                     lastMessage: {
                         select: {
+                            id: true,
                             content: true,
                             createdAt: true,
                             sender: {
@@ -292,4 +293,44 @@ export const toggleChatFavouritesRepo = (chatId: string) => {
         SET "isFavourite" = NOT "isFavourite" 
         WHERE "id" = ${chatId}
     `;
+};
+
+export const getChatMessageForUser = (messageId: string, userId: number) => {
+    return prisma.message.findUnique({
+        where: { id: messageId },
+        include: {
+            chat: {
+                include: {
+                    participants: {
+                        where: {
+                            userId: userId,
+                        },
+                    },
+                },
+            },
+        },
+    });
+};
+
+export const getLastChatMessages = (chatId: string) => {
+    return prisma.message.findMany({
+        where: {
+            chatId: chatId,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        take: 5,
+    });
+};
+
+export const updateMessageSuggestions = (messageId: string, suggestions: string[]) => {
+    return prisma.message.update({
+        where: {
+            id: messageId,
+        },
+        data: {
+            suggestions: suggestions,
+        },
+    });
 };

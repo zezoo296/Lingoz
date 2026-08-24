@@ -108,7 +108,6 @@ export const sendWelcomeEmail = async (email: string): Promise<void> => {
     if (!config.resendApiKey) {
         throw new AppError("Email service is not configured", 500);
     }
-    console.log("HI WELCOME");
     
     const { error } = await resend.emails.send({
         from: config.resendFromEmail,

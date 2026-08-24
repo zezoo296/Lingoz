@@ -1,4 +1,8 @@
-import { toggleChatFavouritesRepo } from './../repositories/chats.repository';
+import {
+    getChatMessageForUser,
+    getLastChatMessages,
+    toggleChatFavouritesRepo,
+} from "./../repositories/chats.repository";
 import type { NewMessageInput } from "@linguachat/shared";
 import type { ChatItem, ChatMessagesResponse } from "@linguachat/shared";
 import {
@@ -11,6 +15,7 @@ import AppError from "../utils/AppError";
 import prisma from "../config/prisma";
 import type { MessageStatusType } from "../generated/prisma/client";
 import { decodeMessageCursor } from "../utils/messageCursor";
+import { gemini } from "../config/geminiAI";
 
 export const getUserChatsService = async (
     userId: number,
@@ -28,6 +33,7 @@ export const getUserChatsService = async (
             name: isGroup ? chat.name! : otherParticipant?.name!,
             photo: isGroup ? chat.photo! : otherParticipant?.photo!,
             lastMessage: {
+                id: lastMessage.id,
                 content: lastMessage.content,
                 created_at: lastMessage.createdAt.toISOString(),
                 sender: {
@@ -35,6 +41,7 @@ export const getUserChatsService = async (
                     name: lastMessage.sender.name!,
                 },
                 statuses: lastMessage.statuses,
+                suggestions: null,
             },
             unreadCount,
         };
@@ -65,6 +72,7 @@ export const getChatMessagesService = async (
                 name: message.sender.name ?? "Unknown",
                 photo: message.sender.photo ?? "",
             },
+            suggestions: null,
         }));
 
         return { type: "Group", messages, nextCursor };
@@ -79,6 +87,7 @@ export const getChatMessagesService = async (
             client_id: null,
             recieverId: null,
             status: statuses[0]?.status ?? "UnDelivered",
+            suggestions: null,
         }));
 
         return { type: "Direct", messages, nextCursor };
@@ -188,4 +197,87 @@ export const toggleChatFavouritesService = async (
         throw new AppError("User doesn't have chat access.", 403);
     }
     await toggleChatFavouritesRepo(chatId);
+};
+
+import { messageSuggestionsSchema } from "@linguachat/shared/src/schemas/chat.schema";
+import { updateMessageSuggestions } from "./../repositories/chats.repository";
+
+export const getMessageSuggestionsService = async (
+    messageId: string,
+    userId: number,
+) => {
+    const message = await getChatMessageForUser(messageId, userId);
+
+    if (!message) {
+        throw new AppError("Message not found", 404);
+    }
+
+    if (message.chat.participants.length === 0) {
+        throw new AppError("User is not a participant in this chat", 403);
+    }
+
+    if (message.senderId === userId) {
+        throw new AppError(
+            "Cannot generate suggestions for your own message",
+            400,
+        );
+    }
+
+    if (message.suggestions) return message.suggestions;
+
+    const lastMessages = await getLastChatMessages(message.chatId);
+
+    const conversation = lastMessages
+        .reverse()
+        .map((msg) => {
+            const sender = msg.senderId === userId ? "User" : "Other";
+            return `${sender}: ${msg.content}`;
+        })
+        .join("\n");
+
+    const prompt = `
+        Generate 3 short, natural reply suggestions for the user.
+
+        Conversation:
+        ${conversation}
+
+        The last message is from "Other", and the user needs possible replies.
+
+        Requirements:
+        - Generate exactly 3 suggestions.
+        - Keep them short and natural.
+        - Make them meaningfully different.
+        - Match the language of the conversation.
+        - Do not include explanations.
+        - Return only a JSON object in this format:
+        {
+        "suggestions": ["...", "...", "..."]
+        }
+    `;
+
+    const response = await gemini.models.generateContent({
+        model: "gemini-3.1-flash-lite",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+        },
+    });
+
+    const text = response.text;
+
+    if (!text) {
+        throw new AppError("Gemini returned an empty response", 500);
+    }
+
+    const parsed = JSON.parse(text);
+
+    const result = messageSuggestionsSchema.safeParse(parsed);
+
+    if (!result.success) {
+        throw new AppError("Invalid suggestions returned by Gemini", 500);
+    }
+
+    await updateMessageSuggestions(message.id, result.data.suggestions);
+
+    return result.data.suggestions;
 };

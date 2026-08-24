@@ -56,7 +56,9 @@ export const MessageBubble = memo(function MessageBubble({
     const senderPhoto = getMessageSenderPhoto(message);
 
     return (
-        <div className={`flex gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
+        <div
+            className={`flex gap-2 ${isMe ? "justify-end" : "justify-start"} mb-3`}
+        >
             {/* Avatar: only for group messages from others */}
             {!isMe && isGroupMessage(message) && (
                 <div className="w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 self-end mb-1 overflow-hidden">

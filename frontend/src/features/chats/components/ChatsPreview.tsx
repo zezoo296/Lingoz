@@ -157,7 +157,7 @@ export default function ChatsPreview({
                                 {chat.lastMessage.sender.name}:{" "}
                             </span>
                         )}
-                        <span className="truncate">
+                        <span className="truncate w-[80%]">
                             {chat.lastMessage.content}
                         </span>
                     </div>

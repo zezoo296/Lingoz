@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const messageStatusSchema = z.enum(["UnDelivered", "Delivered", "Read"]);
 
+export const messageSuggestionsSchema = z.object({
+    suggestions: z.array(z.string().trim().min(1).max(200)).length(3),
+});
+
 export const chatItemSchema = z.object({
     id: z.string(),
     type: z.enum(["Direct", "Group"]),
@@ -9,6 +13,7 @@ export const chatItemSchema = z.object({
     name: z.string(),
     photo: z.string(),
     lastMessage: z.object({
+        id: z.string(),
         content: z.string(),
         created_at: z.string(),
         sender: z.object({
@@ -21,6 +26,7 @@ export const chatItemSchema = z.object({
                 status: messageStatusSchema,
             }),
         ),
+        suggestions: messageSuggestionsSchema.nullable()
     }),
     unreadCount: z.number().int().nonnegative(),
 });
@@ -34,6 +40,7 @@ export const directMessageSchema = z.object({
     senderId: z.number(),
     recieverId: z.number().nullable(),
     status: messageStatusSchema,
+    suggestions: messageSuggestionsSchema.nullable(),
 });
 
 export const groupMessageSchema = z.object({
@@ -56,6 +63,8 @@ export const groupMessageSchema = z.object({
             updatedAt: z.coerce.date(),
         }),
     ),
+
+    suggestions: messageSuggestionsSchema.nullable(),
 });
 
 const directMessagesResponseSchema = z.object({
@@ -75,6 +84,7 @@ export const chatMessagesResponseSchema = z.discriminatedUnion("type", [
     groupMessagesResponseSchema,
 ]);
 
+export type MessageSuggestions = z.infer<typeof messageSuggestionsSchema>;
 export type ChatItem = z.infer<typeof chatItemSchema>;
 export type DirectMessage = z.infer<typeof directMessageSchema>;
 export type GroupMessage = z.infer<typeof groupMessageSchema>;
