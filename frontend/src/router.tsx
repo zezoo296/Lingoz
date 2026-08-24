@@ -7,6 +7,7 @@ import GuestRoute from "./features/auth/routes/GuestRoute";
 import Layout from "./components/Layout";
 import ChatsPage from "./features/chats/pages/ChatsPage";
 import NetworkPage from "./features/network/pages/NetworkPage";
+import ErrorPage from "./components/ErrorPage";
 
 export const router = createBrowserRouter([
     {
@@ -40,10 +41,15 @@ export const router = createBrowserRouter([
                                 path: "network",
                                 element: <NetworkPage />,
                             },
+                            {
+                                path: "profile",
+                                element: <></>,
+                            },
                         ],
                     },
                 ],
             },
         ],
+        errorElement: <ErrorPage />,
     },
 ]);
