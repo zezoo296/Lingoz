@@ -4,6 +4,8 @@ import cors from "cors";
 import authRouter from "./routes/auth.route";
 import friendshipRouter from "./routes/friendship.route";
 import chatsRouter from "./routes/chat.route";
+import messageRouter from "./routes/message.route"
+
 import globalErrorHandler from "./controllers/error.controller";
 import { config } from "./config/env";
 
@@ -26,5 +28,6 @@ app.get("/", (_req, res) => {
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/friendships", friendshipRouter);
 app.use("/api/v1/chats", chatsRouter);
+app.use("/api/v1/messages", messageRouter);
 
 app.use(globalErrorHandler);

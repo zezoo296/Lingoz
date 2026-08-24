@@ -40,3 +40,13 @@ export const getMessageSuggestions = async (
     });
     return res.data.data;
 };
+
+export const translateMessage = async (
+    messageId: string,
+    targetLanguage: string,
+) => {
+    const res = await api.post(`/messages/${messageId}/translate`, {
+        targetLanguage: targetLanguage
+    });
+    return res.data;
+};

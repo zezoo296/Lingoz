@@ -1,3 +1,4 @@
+// Updated MessageBubble.tsx
 import { memo } from "react";
 import { RiCheckDoubleLine, RiCheckLine } from "react-icons/ri";
 import {
@@ -9,6 +10,7 @@ import {
     isMessageSentByCurrentUser,
     type Message,
 } from "../lib/helpers";
+import { MessageTranslation } from "./MessageTranslation";
 
 interface MessageBubbleProps {
     message: Message;
@@ -91,7 +93,12 @@ export const MessageBubble = memo(function MessageBubble({
                             : "bg-surface-elevated text-text-primary rounded-bl-md border border-border"
                     }`}
                 >
-                    <p>{message.content}</p>
+                    {/* Translation-enabled content */}
+                    <MessageTranslation
+                        messageId={message.id}
+                        originalContent={message.content}
+                    />
+
                     <div
                         className={`flex items-center justify-end gap-1 mt-1 ${
                             isMe ? "text-white/60" : "text-text-muted"

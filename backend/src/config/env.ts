@@ -20,4 +20,5 @@ export const config = {
     passwordResetTokenExpiresInMs: 15 * 60 * 1000,
     redisURL: process.env.REDIS_URL ?? "redis://redis:6379",
     gemeniKey: process.env.GEMINI_API_KEY ?? "",
+    deeplKey: process.env.DEEPL_AUTH_KEY ?? "",
 };
