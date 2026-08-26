@@ -12,10 +12,11 @@ import {
     RiArrowRightSLine,
     RiArrowRightLine,
 } from "react-icons/ri";
+import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
 
 export default function Onboarding() {
     const bgImage = "/images/earth.avif";
-
+    const { data: currentUser } = useCurrentUser();
     return (
         <div className="min-h-screen bg-background text-text-primary font-sans relative overflow-hidden">
             {/* Earth Background Layer */}
@@ -40,7 +41,10 @@ export default function Onboarding() {
                     <div className="flex-1 min-w-0">
                         <h1 className="text-3xl sm:text-4xl font-bold mb-3">
                             Welcome to Lingoz,{" "}
-                            <span className="text-brand-500">Zyad!</span> 👋
+                            <span className="text-brand-500">
+                                {currentUser?.name?.split(" ")[0]}!
+                            </span>{" "}
+                            👋
                         </h1>
                         <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-xl">
                             Let's help you practice languages, connect with

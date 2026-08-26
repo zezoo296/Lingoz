@@ -7,7 +7,12 @@ export {
     resetPasswordFormSchema,
 } from "./schemas/auth.schema";
 
-export { userSchema } from "./schemas/user.schema";
+export {
+    userSchema,
+    discoveryUserSchema,
+    discoveryUsersResponseSchema,
+    userQueryParamsSchema,
+} from "./schemas/user.schema";
 
 export {
     sendFriendRequestSchema,
@@ -29,7 +34,13 @@ export type {
     ResetPasswordFormInput,
 } from "./schemas/auth.schema";
 
-export type { AuthenticatedUser } from "./schemas/user.schema";
+export type {
+    AuthenticatedUser,
+    DiscoveryUser,
+    DiscoveryUsersResponse,
+    UserStatus,
+    UserQueryParams,
+} from "./schemas/user.schema";
 
 export type {
     SendFriendRequestInput,

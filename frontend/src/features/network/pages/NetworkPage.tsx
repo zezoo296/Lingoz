@@ -1,127 +1,66 @@
-import { useState } from "react";
-import { RiEqualizerLine, RiCloseLine, RiSearchLine } from "react-icons/ri";
+import { useCallback, useMemo, useState } from "react";
+import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
+import type { DiscoveryUsersResponse, UserQueryParams } from "@linguachat/shared";
+import { RiEqualizerLine, RiCloseLine } from "react-icons/ri";
 import { NetworkSidebar } from "../components/NetworkSidebar";
 import { NetworkHeader } from "../components/NetworkHeader";
 import { UserCard } from "../components/UserCard";
 import { Pagination } from "../components/Pagination";
-import type { User } from "../types";
 import NetworkSearch from "../components/NetworkSearch";
-
-const users: User[] = [
-    {
-        id: 1,
-        name: "Lucía Fernández",
-        username: "@lucia_fdz",
-        avatar: "https://i.pravatar.cc/150?img=1",
-        nativeLang: "Spanish",
-        nativeFlag: "🇪🇸",
-        englishLevel: "English",
-        englishFlag: "🇺🇸",
-        learning: [
-            { name: "English", flag: "🇺🇸" },
-            { name: "French", flag: "🇫🇷" },
-        ],
-        location: "Madrid, Spain",
-        isOnline: true,
-        lastActive: null,
-        isVerified: true,
-    },
-    {
-        id: 2,
-        name: "Hiroshi Nakamura",
-        username: "@hiro_nakamura",
-        avatar: "https://i.pravatar.cc/150?img=11",
-        nativeLang: "Japanese",
-        nativeFlag: "🇯🇵",
-        englishLevel: "English",
-        englishFlag: "🇺🇸",
-        learning: [
-            { name: "English", flag: "🇺🇸" },
-            { name: "Spanish", flag: "🇪🇸" },
-        ],
-        location: "Tokyo, Japan",
-        isOnline: true,
-        lastActive: null,
-        isVerified: true,
-    },
-    {
-        id: 3,
-        name: "Camille Dubois",
-        username: "@camille.d",
-        avatar: "https://i.pravatar.cc/150?img=5",
-        nativeLang: "French",
-        nativeFlag: "🇫🇷",
-        englishLevel: "English",
-        englishFlag: "🇺🇸",
-        learning: [
-            { name: "English", flag: "🇺🇸" },
-            { name: "Italian", flag: "🇮🇹" },
-        ],
-        location: "Lyon, France",
-        isOnline: false,
-        lastActive: "5m ago",
-        isVerified: true,
-    },
-    {
-        id: 4,
-        name: "Arjun Patel",
-        username: "@arjun.patel",
-        avatar: "https://i.pravatar.cc/150?img=12",
-        nativeLang: "Hindi",
-        nativeFlag: "🇮🇳",
-        englishLevel: "English",
-        englishFlag: "🇺🇸",
-        learning: [
-            { name: "English", flag: "🇺🇸" },
-            { name: "German", flag: "🇩🇪" },
-        ],
-        location: "Mumbai, India",
-        isOnline: false,
-        lastActive: "15m ago",
-        isVerified: true,
-    },
-    {
-        id: 5,
-        name: "Sofia Rossi",
-        username: "@sofiarossi",
-        avatar: "https://i.pravatar.cc/150?img=9",
-        nativeLang: "Italian",
-        nativeFlag: "🇮🇹",
-        englishLevel: "English",
-        englishFlag: "🇺🇸",
-        learning: [
-            { name: "English", flag: "🇺🇸" },
-            { name: "Portuguese", flag: "🇧🇷" },
-        ],
-        location: "Milan, Italy",
-        isOnline: false,
-        lastActive: "1h ago",
-        isVerified: true,
-    },
-    {
-        id: 6,
-        name: "Wei Zhang",
-        username: "@weizhang",
-        avatar: "https://i.pravatar.cc/150?img=13",
-        nativeLang: "Chinese",
-        nativeFlag: "🇨🇳",
-        englishLevel: "English",
-        englishFlag: "🇺🇸",
-        learning: [
-            { name: "English", flag: "🇺🇸" },
-            { name: "French", flag: "🇫🇷" },
-        ],
-        location: "Beijing, China",
-        isOnline: false,
-        lastActive: "3h ago",
-        isVerified: true,
-    },
-];
+import { getUsers } from "../api/users.api";
 
 export default function NetworkPage() {
     const [showMobileFilters, setShowMobileFilters] = useState(false);
-    const [onlineStatus, setOnlineStatus] = useState("all");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [filterDraft, setFilterDraft] = useState<UserQueryParams>({
+        status: "all",
+    });
+    const [appliedFilters, setAppliedFilters] = useState<UserQueryParams>({
+        status: "all",
+    });
+    const [searchInput, setSearchInput] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    const queryParams = useMemo<UserQueryParams>(
+        () => ({
+            ...appliedFilters,
+            ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        }),
+        [appliedFilters, debouncedSearch],
+    );
+    const {
+        data,
+        isPending,
+        isError,
+        error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteQuery<
+        DiscoveryUsersResponse,
+        Error,
+        InfiniteData<DiscoveryUsersResponse>,
+        readonly [string, UserQueryParams],
+        string | null
+    >({
+        queryKey: ["network-users", queryParams],
+        queryFn: ({ pageParam }) => getUsers(queryParams, 10, pageParam),
+        initialPageParam: null,
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    });
+
+    const users = data?.pages.flatMap((page) => page.users) ?? [];
+
+    const handleLoadMore = useCallback(() => {
+        if (hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage();
+        }
+    }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+    const handleResetFilters = useCallback(() => {
+        const clearedFilters: UserQueryParams = { status: "all" };
+        setFilterDraft(clearedFilters);
+        setAppliedFilters(clearedFilters);
+    }, []);
 
     return (
         <div className="min-h-screen bg-background text-text-primary">
@@ -141,36 +80,57 @@ export default function NetworkPage() {
                     </button>
                 </div>
 
-                {/* Filters sidebar */}
                 <aside
                     className={`${
                         showMobileFilters ? "block" : "hidden"
-                    } w-full bg-surface border-b border-border lg:flex lg:w-80 xl:w-96 lg:shrink-0 lg:flex-col lg:border-r lg:border-b-0`}
+                    } w-full bg-surface border-b border-border lg:block lg:fixed lg:top-0 lg:left-0 lg:h-full lg:pt-3 lg:w-80 xl:w-96 lg:border-r lg:border-b-0 lg:overflow-y-auto z-30`}
                 >
                     <NetworkSidebar
-                        onlineStatus={onlineStatus}
-                        setOnlineStatus={setOnlineStatus}
+                        filters={filterDraft}
+                        onFiltersChange={setFilterDraft}
+                        onApply={() => setAppliedFilters(filterDraft)}
+                        onReset={handleResetFilters}
                     />
                 </aside>
 
-                {/* Main Content */}
-                <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10">
+                {/* Main Content — offset by sidebar width on desktop */}
+                <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:ml-80 xl:ml-96">
                     <NetworkHeader />
 
-                    <NetworkSearch />
+                    <NetworkSearch
+                        value={searchInput}
+                        onChange={setSearchInput}
+                        onDebouncedSearchChange={setDebouncedSearch}
+                    />
 
                     {/* Users List */}
                     <div className="space-y-2">
-                        {users.map((user) => (
-                            <UserCard key={user.id} user={user} />
-                        ))}
+                        {isPending ? (
+                            <p className="py-8 text-center text-sm text-text-muted">
+                                Loading users...
+                            </p>
+                        ) : isError ? (
+                            <p className="py-8 text-center text-sm text-error">
+                                {error.message}
+                            </p>
+                        ) : users.length === 0 ? (
+                            <p className="py-8 text-center text-sm text-text-muted">
+                                No users found.
+                            </p>
+                        ) : (
+                            users.map((user) => (
+                                <UserCard key={user.id} user={user} />
+                            ))
+                        )}
                     </div>
 
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={13}
-                        onPageChange={setCurrentPage}
-                    />
+                    {!isPending && !isError && users.length > 0 && (
+                        <Pagination
+                            hasNextPage={hasNextPage}
+                            isFetchingNextPage={isFetchingNextPage}
+                            onLoadMore={handleLoadMore}
+                        />
+                    )}
                 </main>
             </div>
         </div>

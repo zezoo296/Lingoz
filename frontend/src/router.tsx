@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import ChatsPage from "./features/chats/pages/ChatsPage";
 import NetworkPage from "./features/network/pages/NetworkPage";
 import ErrorPage from "./components/ErrorPage";
+import FriendsPage from "./features/friends/pages/FriendsPage";
 
 export const router = createBrowserRouter([
     {
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "network",
                                 element: <NetworkPage />,
+                            },
+                            {
+                                path: "friends",
+                                element: <FriendsPage />,
                             },
                             {
                                 path: "profile",

@@ -1,11 +1,21 @@
 import AppError from "./AppError";
 
-export type MessageCursor = {
+export type Cursor = {
     createdAt: Date;
-    id: string;
+    id: string ;
 };
 
-export const encodeMessageCursor = (cursor: MessageCursor): string => {
+export const olderThanCursor = (cursor: Cursor) => ({
+    OR: [
+        { createdAt: { lt: cursor.createdAt } },
+        {
+            createdAt: cursor.createdAt,
+            id: { lt: cursor.id },
+        },
+    ],
+});
+
+export const encodeCursor = (cursor: Cursor): string => {
     return Buffer.from(
         JSON.stringify({
             createdAt: cursor.createdAt.toISOString(),
@@ -15,7 +25,7 @@ export const encodeMessageCursor = (cursor: MessageCursor): string => {
     ).toString("base64url");
 };
 
-export const decodeMessageCursor = (cursor: string): MessageCursor => {
+export const decodeCursor = (cursor: string): Cursor => {
     try {
         const parsed: unknown = JSON.parse(
             Buffer.from(cursor, "base64url").toString("utf8"),

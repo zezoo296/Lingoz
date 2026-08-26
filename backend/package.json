@@ -8,6 +8,7 @@
         "start": "node dist/server.js",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
+        "prisma:reset": "prisma migrate reset",
         "worker": "ts-node src/workers/index.ts"
     },
     "dependencies": {

@@ -1,19 +1,7 @@
 import { Prisma } from "@prisma/client/extension";
 import prisma from "../config/prisma";
-import {
-    encodeMessageCursor,
-    type MessageCursor,
-} from "../utils/messageCursor";
+import { encodeCursor, type Cursor, olderThanCursor } from "../utils/cursor";
 
-const olderThanCursor = (cursor: MessageCursor) => ({
-    OR: [
-        { createdAt: { lt: cursor.createdAt } },
-        {
-            createdAt: cursor.createdAt,
-            id: { lt: cursor.id },
-        },
-    ],
-});
 
 const paginateMessages = <T extends { id: string; createdAt: Date }>(
     rows: T[],
@@ -24,7 +12,7 @@ const paginateMessages = <T extends { id: string; createdAt: Date }>(
     const lastMessage = messages[messages.length - 1];
     const nextCursor =
         hasMore && lastMessage
-            ? encodeMessageCursor({
+            ? encodeCursor({
                   createdAt: lastMessage.createdAt,
                   id: lastMessage.id,
               })
@@ -138,7 +126,7 @@ export const getChatParticipants = (chatId: string) => {
 
 export const getGroupChatMessagesRepo = async (
     chatId: string,
-    cursor?: MessageCursor,
+    cursor?: Cursor,
     limit: number = 20,
 ) => {
     const rows = await prisma.message.findMany({
@@ -182,7 +170,7 @@ export const getGroupChatMessagesRepo = async (
 
 export const getDirectChatMessagesRepo = async (
     chatId: string,
-    cursor?: MessageCursor,
+    cursor?: Cursor,
     limit: number = 20,
 ) => {
     const rows = await prisma.message.findMany({
@@ -324,7 +312,10 @@ export const getLastChatMessages = (chatId: string) => {
     });
 };
 
-export const updateMessageSuggestions = (messageId: string, suggestions: string[]) => {
+export const updateMessageSuggestions = (
+    messageId: string,
+    suggestions: string[],
+) => {
     return prisma.message.update({
         where: {
             id: messageId,

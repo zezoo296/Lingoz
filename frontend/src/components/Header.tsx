@@ -5,6 +5,8 @@ import {
     RiTeamLine,
     RiUserLine,
 } from "react-icons/ri";
+import { FaUserFriends } from "react-icons/fa";
+
 import { logout } from "../features/auth/api/authApi";
 import { useLocation, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,13 +17,14 @@ export default function Header() {
     const navigationItems = [
         { label: "Chats", path: "/chats", icon: RiChat1Line },
         { label: "Network", path: "/network", icon: RiTeamLine },
+        { label: "Friends", path: "/friends", icon: FaUserFriends },
         { label: "Profile", path: "/profile", icon: RiUserLine },
     ];
     const queryClient = useQueryClient();
 
     const handleLogout = async () => {
         await logout();
-        
+
         queryClient.removeQueries({
             queryKey: ["current-user"],
         });

@@ -1,58 +1,43 @@
-import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+import { useEffect, useRef } from "react";
 
 interface PaginationProps {
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
+    hasNextPage: boolean;
+    isFetchingNextPage: boolean;
+    onLoadMore: () => void;
 }
 
 export const Pagination = ({
-    currentPage,
-    totalPages,
-    onPageChange,
+    hasNextPage,
+    isFetchingNextPage,
+    onLoadMore,
 }: PaginationProps) => {
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        if (!sentinel || !hasNextPage || isFetchingNextPage) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) onLoadMore();
+            },
+            { rootMargin: "160px" },
+        );
+
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [hasNextPage, isFetchingNextPage, onLoadMore]);
+
     return (
-        <div className="flex items-center justify-center gap-1 mt-8">
-            <button
-                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                className="p-2 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface transition-colors"
-                disabled={currentPage === 1}
-            >
-                <RiArrowLeftSLine className="w-5 h-5" />
-            </button>
-            {[1, 2, 3, 4, 5].map((page) => (
-                <button
-                    key={page}
-                    onClick={() => onPageChange(page)}
-                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
-                        page === currentPage
-                            ? "bg-brand-600 text-white"
-                            : "text-text-muted hover:text-text-secondary hover:bg-surface"
-                    }`}
-                >
-                    {page}
-                </button>
-            ))}
-            <span className="px-1 text-text-muted">...</span>
-            <button
-                onClick={() => onPageChange(totalPages)}
-                className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
-                    currentPage === totalPages
-                        ? "bg-brand-600 text-white"
-                        : "text-text-muted hover:text-text-secondary hover:bg-surface"
-                }`}
-            >
-                {totalPages}
-            </button>
-            <button
-                onClick={() =>
-                    onPageChange(Math.min(totalPages, currentPage + 1))
-                }
-                className="p-2 rounded-lg text-text-muted hover:text-text-secondary hover:bg-surface transition-colors"
-                disabled={currentPage === totalPages}
-            >
-                <RiArrowRightSLine className="w-5 h-5" />
-            </button>
+        <div
+            ref={sentinelRef}
+            className="flex min-h-14 items-center justify-center mt-8 text-sm text-text-muted"
+        >
+            {isFetchingNextPage
+                ? "Loading more users..."
+                : !hasNextPage
+                  ? "You've reached the end."
+                  : null}
         </div>
     );
 };

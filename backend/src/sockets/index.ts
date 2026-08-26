@@ -10,21 +10,27 @@ export const initializeSockets = (io: Server) => {
 
     io.on("connection", async (socket) => {
         const userId = socket.data.user.id;
-        const key = redisKeys.userSockets(userId);
+        const socketKey = redisKeys.userSockets(userId);
 
-        await redis.sadd(key, socket.id);
+        await redis.sadd(socketKey, socket.id);
+        await redis.sadd(redisKeys.onlineUsers(), userId);
 
         registerChatEvents(socket, io);
 
         socket.on("disconnect", async () => {
-            await redis.srem(key, socket.id);
+            await redis.srem(socketKey, socket.id);
             await redis.del(redisKeys.socketOpenChat(userId, socket.id));
-            
-            const remainingSockets = await redis.scard(key);
+
+            const remainingSockets = await redis.scard(socketKey);
 
             if (remainingSockets === 0) {
-                await updateUser(socket.data.user.id, { lastSeen: new Date() });
-                //emit event
+                await redis.srem(redisKeys.onlineUsers(), userId);
+
+                await updateUser(userId, {
+                    lastSeen: new Date(),
+                });
+
+                // emit offline event
             }
         });
     });

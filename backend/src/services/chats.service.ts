@@ -14,7 +14,7 @@ import {
 import AppError from "../utils/AppError";
 import prisma from "../config/prisma";
 import type { MessageStatusType } from "../generated/prisma/client";
-import { decodeMessageCursor } from "../utils/messageCursor";
+import { decodeCursor } from "../utils/cursor";
 import { gemini } from "../config/geminiAI";
 
 export const getUserChatsService = async (
@@ -59,7 +59,7 @@ export const getChatMessagesService = async (
         throw new AppError("User doesn't have chat access.", 403);
     }
 
-    const decodedCursor = cursor ? decodeMessageCursor(cursor) : undefined;
+    const decodedCursor = cursor ? decodeCursor(cursor) : undefined;
 
     if (ChatParticipant.chat.type === "Group") {
         const { messages: groupMessages, nextCursor } =

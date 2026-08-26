@@ -12,7 +12,7 @@ import {
     type LanguageCode,
     type LanguageName,
     getLanguageNameFromCode,
-} from "../lib/messageTranslation";
+} from "../../../lib/nameCode";
 import { translateMessage } from "../api/chatApi";
 
 interface MessageTranslationProps {

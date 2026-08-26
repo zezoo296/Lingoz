@@ -8,10 +8,13 @@ model User {
   id        Int                       @id @default(autoincrement())
   email     String                    @unique
   name      String?
+  username  String?                   @unique
   password  String?
   birthday  DateTime?
   photo     String?
   gender    Gender?
+  countryCode String?
+  city        String?
   isDeleted Boolean                   @default(false)
   lastSeen  DateTime?
   googleId  String?                   @unique
@@ -22,8 +25,10 @@ model User {
   passwordResetTokenHash         String?
   passwordResetTokenExpiresAt    DateTime?
   hasSeenOnboarding  Boolean @default(false)
-  location  Unsupported("geography")?
-  @@index([location], type: Gist, map: "User_location_idx")
+
+
+  @@index([countryCode])
+  @@index([countryCode, city])
 
 
   friendships Friendship[] @relation("UserFriendships")
@@ -33,5 +38,19 @@ model User {
   chatParticipants ChatParticipant[]
   sentMessages     Message[]         @relation("SentMessages")
   messageStatuses  MessageStatus[]
+  userLanguages UserLanguage[]
 }
 
+
+model UserLanguage {
+  id          Int     @id @default(autoincrement())
+  userId      Int
+  languageCode String
+
+  isLearning  Boolean @default(false)
+  isSpeaking  Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, languageCode])
+}

@@ -3,4 +3,6 @@ export const redisKeys = {
 
     socketOpenChat: (userId: number, socketId: string) =>
         `user:${userId}:socket:${socketId}:openChat`,
+
+    onlineUsers: () => "online-users",
 };
