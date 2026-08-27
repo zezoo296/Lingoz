@@ -50,7 +50,7 @@ export const NetworkSidebar = ({
                             Language spoken
                         </span>
                     </div>
-                    <div className="relative">
+                    <div className="relative max-h-25">
                         <select
                             value={filters.speak_language ?? ""}
                             onChange={(event) =>

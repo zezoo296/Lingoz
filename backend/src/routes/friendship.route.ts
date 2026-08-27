@@ -3,6 +3,7 @@ import {
     cancelFriendRequest,
     getReceivedFriendRequests,
     getSentFriendRequests,
+    getConnections,
     removeFriendship,
     respondToFriendRequest,
     sendFriendRequest,
@@ -20,6 +21,7 @@ router.use(protect);
 router.post("/requests", validate(sendFriendRequestSchema), sendFriendRequest);
 router.get("/requests/received", getReceivedFriendRequests);
 router.get("/requests/sent", getSentFriendRequests);
+router.get("/connections", getConnections);
 router.patch(
     "/requests/:requestId",
     validate(updateFriendRequestSchema),

@@ -5,6 +5,7 @@ import {
     cancelFriendRequestService,
     getReceivedFriendRequestsService,
     getSentFriendRequestsService,
+    getConnectionsService,
     removeFriendshipService,
     respondToFriendRequestService,
     sendFriendRequestService,
@@ -46,6 +47,11 @@ export const getSentFriendRequests = catchAsync(async (req, res) => {
         authenticatedUserId(req),
     );
     res.status(200).json({ status: "success", data: requests });
+});
+
+export const getConnections = catchAsync(async (req, res) => {
+    const connections = await getConnectionsService(authenticatedUserId(req));
+    res.status(200).json({ status: "success", data: connections });
 });
 
 export const respondToFriendRequest = catchAsync(async (req, res) => {

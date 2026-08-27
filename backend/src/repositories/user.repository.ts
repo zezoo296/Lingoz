@@ -191,7 +191,6 @@ export const getUsersRepo = async (
                     sentRequests: {
                         none: {
                             receiverId: userId,
-                            status: "PENDING",
                         },
                     },
                 },
@@ -199,7 +198,6 @@ export const getUsersRepo = async (
                     receivedRequests: {
                         none: {
                             senderId: userId,
-                            status: "PENDING",
                         },
                     },
                 },

@@ -143,6 +143,22 @@ button {
     }
 }
 
+.fadeDown {
+    animation: fadeDownAnimation 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeDownAnimation {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translate(0);
+        opacity: 1;
+    }
+}
+
 .fade {
     animation: fadeAnimation 1s;
     animation-fill-mode: forwards;

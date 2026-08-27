@@ -10,6 +10,7 @@ import {
     removeFriendship,
     updateFriendRequestStatus,
     getFriendRequestById,
+    getConnections,
 } from "../repositories/friends.repository";
 import { findUserById } from "../repositories/user.repository";
 import AppError from "../utils/AppError";
@@ -52,6 +53,8 @@ export const getReceivedFriendRequestsService = (userId: number) =>
 
 export const getSentFriendRequestsService = (userId: number) =>
     getSentFriendRequests(userId);
+
+export const getConnectionsService = (userId: number) => getConnections(userId);
 
 export const respondToFriendRequestService = async (
     userId: number,

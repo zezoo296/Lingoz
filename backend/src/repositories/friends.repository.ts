@@ -47,6 +47,15 @@ export const removeFriendship = (userA: number, userB: number) => {
                 },
             },
         }),
+
+        prisma.friendRequest.deleteMany({
+            where: {
+                OR: [
+                    { senderId: userA, receiverId: userB },
+                    { senderId: userB, receiverId: userA },
+                ],
+            },
+        }),
     ]);
 };
 
@@ -108,6 +117,34 @@ export const getSentFriendRequests = (userId: number) => {
     });
 };
 
+export const getConnections = (userId: number) => {
+    return prisma.friendship.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        select: {
+            createdAt: true,
+            friend: {
+                select: {
+                    id: true,
+                    name: true,
+                    username: true,
+                    photo: true,
+                    lastSeen: true,
+                    countryCode: true,
+                    city: true,
+                    userLanguages: {
+                        select: {
+                            languageCode: true,
+                            isLearning: true,
+                            isSpeaking: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+};
+
 export const checkExistingFriendRequest = (
     senderId: number,
     receiverId: number,
@@ -140,11 +177,10 @@ export const findReceivedFriendRequest = (
     });
 };
 
-
 export const getFriendRequestById = (id: string) => {
     return prisma.friendRequest.findUnique({
         where: {
-            id
-        }
-    })
-}
+            id,
+        },
+    });
+};

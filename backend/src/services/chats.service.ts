@@ -10,6 +10,9 @@ import {
     getChatParticipant,
     getDirectChatMessagesRepo,
     getUserChats,
+    createDirectChat,
+    findDirectChatBetweenUsers,
+    getDirectChatDetails,
 } from "../repositories/chats.repository";
 import AppError from "../utils/AppError";
 import prisma from "../config/prisma";
@@ -25,7 +28,13 @@ export const getUserChatsService = async (
     return chatParticipants.map(({ chat, unreadCount }) => {
         const otherParticipant = chat.participants[0]?.user;
         const isGroup = chat.type === "Group";
-        const lastMessage = chat.lastMessage!;
+        const lastMessage = chat.lastMessage ?? {
+            id: `empty-${chat.id}`,
+            content: "No messages yet",
+            createdAt: chat.createdAt,
+            sender: { id: userId, name: "" },
+            statuses: [],
+        };
         return {
             id: chat.id,
             type: chat.type,
@@ -46,6 +55,48 @@ export const getUserChatsService = async (
             unreadCount,
         };
     });
+};
+
+export const getOrCreateDirectChatService = async (
+    userId: number,
+    recipientId: number,
+): Promise<ChatItem> => {
+    if (userId === recipientId) {
+        throw new AppError("You cannot create a chat with yourself", 400);
+    }
+
+    const connection = await prisma.friendship.findUnique({
+        where: { userId_friendId: { userId, friendId: recipientId } },
+    });
+    if (!connection) {
+        throw new AppError("You can only message your connections", 403);
+    }
+
+    const existingChat = await findDirectChatBetweenUsers(userId, recipientId);
+    const chatId = existingChat?.chatId ?? (await createDirectChat(userId, recipientId)).id;
+    const details = await getDirectChatDetails(chatId, userId);
+    const recipient = details?.participants[0]?.user;
+
+    if (!details || !recipient) {
+        throw new AppError("Unable to create a direct chat", 500);
+    }
+
+    return {
+        id: details.id,
+        type: "Direct",
+        isFavourite: details.isFavourite,
+        name: recipient.name ?? "Unknown user",
+        photo: recipient.photo ?? "",
+        lastMessage: {
+            id: "",
+            content: "",
+            created_at: new Date().toISOString(),
+            sender: { id: userId, name: "" },
+            statuses: [],
+            suggestions: null,
+        },
+        unreadCount: 0,
+    };
 };
 
 export const getChatMessagesService = async (

@@ -47,6 +47,7 @@ export const getUserChats = (userId: number) => {
             chat: {
                 select: {
                     id: true,
+                    createdAt: true,
                     type: true,
                     name: true,
                     photo: true,
@@ -90,6 +91,51 @@ export const getUserChats = (userId: number) => {
                             },
                         },
                     },
+                },
+            },
+        },
+    });
+};
+
+export const findDirectChatBetweenUsers = (
+    userId: number,
+    recipientId: number,
+) => {
+    return prisma.chatParticipant.findFirst({
+        where: {
+            userId,
+            chat: {
+                type: "Direct",
+                participants: { some: { userId: recipientId } },
+            },
+        },
+        select: { chatId: true },
+    });
+};
+
+export const createDirectChat = (userId: number, recipientId: number) => {
+    return prisma.chat.create({
+        data: {
+            type: "Direct",
+            participants: {
+                create: [{ userId }, { userId: recipientId }],
+            },
+        },
+        select: { id: true },
+    });
+};
+
+export const getDirectChatDetails = (chatId: string, userId: number) => {
+    return prisma.chat.findUnique({
+        where: { id: chatId },
+        select: {
+            id: true,
+            type: true,
+            isFavourite: true,
+            participants: {
+                where: { userId: { not: userId } },
+                select: {
+                    user: { select: { id: true, name: true, photo: true } },
                 },
             },
         },

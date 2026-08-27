@@ -1,11 +1,11 @@
 import { RiVerifiedBadgeFill, RiMapPinLine } from "react-icons/ri";
-import { FiUserPlus } from "react-icons/fi";
 import {
     getCountryNameFromCode,
     getLanguageNameFromCode,
 } from "../../../lib/nameCode";
 import type { DiscoveryUser } from "@linguachat/shared";
 import ConnectButton from "./ConnectButton";
+
 
 interface UserCardProps {
     user: DiscoveryUser;
@@ -171,7 +171,7 @@ export const UserCard = ({ user }: UserCardProps) => {
             </div>
 
             {/* Location and presence */}
-            <div className="border-border sm:border-l sm:pl-4 lg:pl-6 relative top-8.75 sm:top-0">
+            <div className="relative top-0 border-border sm:border-l sm:pl-4 lg:pl-6 sm:top-0 mt-4 lg:mt-0">
                 <div className="text-left">
                     <div className="flex items-center gap-1 text-sm text-text-secondary">
                         <RiMapPinLine className="w-4 h-4 shrink-0" />
@@ -188,7 +188,7 @@ export const UserCard = ({ user }: UserCardProps) => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2 lg:col-start-4 lg:row-start-1 ml-auto sm:ml-0">
+            <div className="relative z-10 flex items-center justify-end gap-2 pt-2 sm:ml-0 sm:pt-0 lg:col-start-4 lg:row-start-1">
                 <ConnectButton recieverId={user.id}/>
             </div>
         </div>

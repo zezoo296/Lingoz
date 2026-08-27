@@ -4,13 +4,13 @@ import type { ChatItem } from "@linguachat/shared";
 import { getUserChats } from "../api/chatApi";
 import ChatList from "../components/ChatList";
 import MainArea from "../components/MainArea";
-import Suggested from "../components/Suggested";
 import { socket } from "../../../sockets/socket";
 import { CHAT_EVENTS } from "@linguachat/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Tabs } from "../lib/helpers";
 import { useCurrentUser } from "../../auth/hooks/useCurrentUser";
 import { fetchAndCacheMessageSuggestions } from "../lib/messageSuggestions";
+import NewChatModal from "../components/NewChatModal";
 
 export default function ChatsPage() {
     const [activeChatId, setActiveChatId] = useState<string>();
@@ -21,6 +21,7 @@ export default function ChatsPage() {
     });
     const [selectedTab, setSelectedTab] = useState<Tabs>("All");
     const [searchQuery, setSearchQuery] = useState("");
+    const [showNewChat, setShowNewChat] = useState(false);
     const { data: currentUser } = useCurrentUser();
 
     const displayedChats = useMemo(() => {
@@ -129,11 +130,13 @@ export default function ChatsPage() {
 
     const showMainAreaMobile = activeChatId && selectedChat;
 
+    const handleNewChat = () => setShowNewChat(true);
+
     return (
-        <div className="flex flex-col lg:flex-row ">
+        <div className="flex flex-col lg:flex-row min-h[90vh]">
             <aside
                 className={`
-                    w-full lg:w-80 xl:w-96 bg-surface border-r border-border flex flex-col shrink-0
+                    w-full lg:w-80 xl:w-96 bg-surface border-r min-h-[90vh] border-border flex flex-col shrink-0
                     ${activeChatId ? "hidden lg:flex" : "flex"}
                 `}
             >
@@ -142,12 +145,11 @@ export default function ChatsPage() {
                     activeChatId={activeChatId}
                     onChatClick={handleChatClick}
                     onTabChange={(tab) => setSelectedTab(tab)}
-                    onNewChat={() => console.log("New chat")}
+                    onNewChat={handleNewChat}
                     selectedTab={selectedTab}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                 />
-                {chats.length <= 2 && <Suggested />}
             </aside>
 
             <div
@@ -161,9 +163,18 @@ export default function ChatsPage() {
                     activeChatId={activeChatId}
                     selectedChat={selectedChat}
                     onBackToList={handleBackToList}
-                    onNewChat={() => console.log("New chat")}
+                    onNewChat={handleNewChat}
                 />
             </div>
+            {showNewChat && (
+                <NewChatModal
+                    onClose={() => setShowNewChat(false)}
+                    onChatCreated={(chat) => {
+                        setActiveChatId(chat.id);
+                        setSelectedChat(chat);
+                    }}
+                />
+            )}
         </div>
     );
 }

@@ -3,6 +3,7 @@ import { HiUsers } from "react-icons/hi";
 import { IoTrophy } from "react-icons/io5";
 import { MdTranslate } from "react-icons/md";
 import { RiChat1Line, RiTeamLine } from "react-icons/ri";
+import { useNavigate } from "react-router";
 const featureCards = [
     {
         icon: <HiUsers className="w-5 h-5 text-brand-500" />,
@@ -26,8 +27,8 @@ const featureCards = [
     },
 ];
 
-
 export default function MainAreaEmptyChats() {
+    const navigate = useNavigate();
     return (
         <main className="flex-1 bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
             {/* Decorative Background */}
@@ -103,7 +104,12 @@ export default function MainAreaEmptyChats() {
                         <RiChat1Line className="w-5 h-5" />
                         Start a new chat
                     </button>
-                    <button className="w-full sm:w-auto px-6 py-3 rounded-xl border border-border text-text-secondary font-medium flex items-center justify-center gap-2 hover:bg-surface-elevated hover:text-text-primary transition-all">
+                    <button
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl border border-border text-text-secondary font-medium flex items-center justify-center gap-2 hover:bg-surface-elevated hover:text-text-primary transition-all"
+                        onClick={() =>
+                            navigate("/network", { viewTransition: true })
+                        }
+                    >
                         <RiTeamLine className="w-5 h-5" />
                         Explore people
                     </button>

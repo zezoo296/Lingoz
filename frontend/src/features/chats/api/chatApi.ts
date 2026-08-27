@@ -13,6 +13,13 @@ export const getUserChats = async (): Promise<ChatItem[]> => {
     return res.data.data;
 };
 
+export const getOrCreateDirectChat = async (
+    recipientId: number,
+): Promise<ChatItem> => {
+    const res = await api.post(`/chats/direct/${recipientId}`);
+    return res.data.data;
+};
+
 export const getChatMessages = async (
     id: string,
     cursor: string | null,

@@ -4,6 +4,7 @@ import {
     getChatMessagesService,
     getUserChatsService,
     getMessageSuggestionsService,
+    getOrCreateDirectChatService,
 } from "../services/chats.service";
 import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/AppError";
@@ -13,6 +14,17 @@ export const getUserChats = catchAsync(async (req, res) => {
     const chats = await getUserChatsService(userId);
 
     res.status(200).json({ status: "success", data: chats });
+});
+
+export const getOrCreateDirectChat = catchAsync(async (req, res) => {
+    const userId = req.user?.id || 0;
+    const recipientId = Number(req.params.recipientId);
+    if (!Number.isInteger(recipientId) || recipientId <= 0) {
+        throw new AppError("Recipient ID must be a positive integer", 400);
+    }
+
+    const chat = await getOrCreateDirectChatService(userId, recipientId);
+    res.status(200).json({ status: "success", data: chat });
 });
 
 export const getChatMessages = catchAsync(async (req, res) => {

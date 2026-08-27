@@ -1,10 +1,11 @@
 import {
     RiChat1Line,
     RiMessage3Fill,
-    RiNotification3Line,
     RiTeamLine,
     RiUserLine,
 } from "react-icons/ri";
+import { TbDoorExit } from "react-icons/tb";
+
 import { FaUserFriends } from "react-icons/fa";
 
 import { logout } from "../features/auth/api/authApi";
@@ -72,17 +73,12 @@ export default function Header() {
                 </div>
 
                 <div className="flex items-center gap-3 sm:gap-4">
-                    <button className="relative text-text-muted hover:text-text-secondary transition-colors">
-                        <RiNotification3Line className="w-6 h-6 sm:w-5 sm:h-5" />
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-brand-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
-                            3
-                        </span>
-                    </button>
                     <div
-                        className="w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold"
+                        className="cursor-pointer w-9 h-9 rounded-full bg-linear-to-br from-brand-500 to-brand-800 flex items-center justify-center text-sm font-semibold"
                         onClick={handleLogout}
+                        title="Logout"
                     >
-                        Z
+                        <TbDoorExit />
                     </div>
                 </div>
             </nav>
