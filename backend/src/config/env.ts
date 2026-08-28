@@ -21,4 +21,5 @@ export const config = {
     redisURL: process.env.REDIS_URL ?? "redis://redis:6379",
     gemeniKey: process.env.GEMINI_API_KEY ?? "",
     deeplKey: process.env.DEEPL_AUTH_KEY ?? "",
+    cloudinaryURL: process.env.CLOUDNARY_URL ?? "",
 };

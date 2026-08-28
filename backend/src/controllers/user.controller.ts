@@ -1,4 +1,9 @@
-import { getUsersService } from "../services/user.service";
+import {
+    getMeService,
+    getUsersService,
+    updateMeService,
+    updateUserLanguagesService,
+} from "../services/user.service";
 import AppError from "../utils/AppError";
 import catchAsync from "../utils/catchAsync";
 import { userQueryParamsSchema } from "@linguachat/shared";
@@ -29,5 +34,32 @@ export const getUsers = catchAsync(async (req, res) => {
     res.status(200).json({
         status: "success",
         data: discoveryUsers,
+    });
+});
+
+export const getMe = catchAsync(async (req, res) => {
+    const userId = req.user?.id;
+    const user = await getMeService(userId);
+    res.status(200).json({
+        status: "success",
+        data: user,
+    });
+});
+
+
+export const updateMe = catchAsync(async (req, res) => {
+    const userId = req.user?.id;
+    const user = await updateMeService(userId, req.body, req.file);
+    res.status(200).json({
+        status: "success",
+        data: user,
+    });
+});
+
+export const updateUserLanguages = catchAsync(async (req, res) => {
+    const user = await updateUserLanguagesService(req.user?.id, req.body);
+    res.status(200).json({
+        status: "success",
+        data: user,
     });
 });

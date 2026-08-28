@@ -136,6 +136,52 @@ export const findByEmailOrGoogleId = (email: string, googleId: string) => {
     });
 };
 
+export const getUserProfileRepo = (userId: number) => {
+    return prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            username: true,
+            birthday: true,
+            photo: true,
+            photoUrl: true,
+            photoPublicId: true,
+            gender: true,
+            countryCode: true,
+            city: true,
+            lastSeen: true,
+            hasSeenOnboarding: true,
+            userLanguages: true,
+        },
+    });
+};
+
+export const updateUserProfileRepo = (
+    userId: number,
+    data: Prisma.UserUpdateInput,
+) => {
+    return prisma.user.update({
+        where: { id: userId },
+        data,
+    });
+};
+
+export const replaceUserLanguagesRepo = async (
+    userId: number,
+    userLanguages: Prisma.UserLanguageCreateManyInput[],
+) => {
+    return prisma.$transaction(async (transaction) => {
+        await transaction.userLanguage.deleteMany({ where: { userId } });
+        if (userLanguages.length > 0) {
+            await transaction.userLanguage.createMany({ data: userLanguages });
+        }
+    });
+};
+
 import { redis } from "../config/redis";
 import { redisKeys } from "../redis/keys";
 

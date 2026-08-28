@@ -15,9 +15,9 @@ import { signupSchema, type SignupInput } from "@linguachat/shared";
 
 type SignupProps = {
     onSuccess: (action: "login") => void;
-}
+};
 
-export default function Signup({onSuccess} : SignupProps): JSX.Element {
+export default function Signup({ onSuccess }: SignupProps): JSX.Element {
     const [showPassword, setShowPassword] = useState(false);
 
     const { mutate, isPending } = useMutation({
@@ -37,7 +37,7 @@ export default function Signup({onSuccess} : SignupProps): JSX.Element {
         formState: { errors },
     } = useForm<SignupInput>({
         resolver: zodResolver(signupSchema),
-        mode: "onTouched"
+        mode: "onTouched",
     });
 
     const onSubmit = (data: SignupInput) => {

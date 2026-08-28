@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
 import { login } from "../api/authApi";
 import { loginSchema, type LoginInput } from "@linguachat/shared";
+import { useNavigate } from "react-router";
 
 type loginProps = {
     onForgot: (action: "forgotPassword") => void;
@@ -18,11 +19,13 @@ type loginProps = {
 
 export default function Login({ onForgot }: loginProps) {
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     const mutation = useMutation({
         mutationFn: login,
         onSuccess: () => {
             toast.success("Logged in successfully!");
+            navigate("/welcome", { viewTransition: true });
         },
         onError: (e) => {
             toast.error(e.message);

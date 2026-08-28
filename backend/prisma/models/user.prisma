@@ -12,6 +12,8 @@ model User {
   password  String?
   birthday  DateTime?
   photo     String?
+  photoUrl  String?
+  photoPublicId String?
   gender    Gender?
   countryCode String?
   city        String?

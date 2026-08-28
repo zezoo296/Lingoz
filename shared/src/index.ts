@@ -9,6 +9,9 @@ export {
 
 export {
     userSchema,
+    userProfileSchema,
+    updateUserSchema,
+    updateUserLanguagesSchema,
     discoveryUserSchema,
     discoveryUsersResponseSchema,
     userQueryParamsSchema,
@@ -36,6 +39,9 @@ export type {
 
 export type {
     AuthenticatedUser,
+    UserProfile,
+    UpdateUserInput,
+    UpdateUserLanguagesInput,
     DiscoveryUser,
     DiscoveryUsersResponse,
     UserStatus,

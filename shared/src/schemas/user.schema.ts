@@ -29,6 +29,8 @@ export const discoveryUserLanguageSchema = z.object({
     isSpeaking: z.boolean(),
 });
 
+export const userProfileLanguageSchema = discoveryUserLanguageSchema;
+
 /**
  * The minimal, public profile data shown in people discovery.
  */
@@ -42,6 +44,55 @@ export const discoveryUserSchema = z.object({
     city: z.string().nullable(),
     isOnline: z.boolean().default(false),
     userLanguages: z.array(discoveryUserLanguageSchema),
+});
+
+export const userProfileSchema = z.object({
+    id: z.number().int().positive(),
+    name: z.string().nullable(),
+    username: z.string().nullable(),
+    email: z.email(),
+    birthday: isoDateSchema,
+    photo: z.string().nullable(),
+    gender: z.enum(["MALE", "FEMALE"]).nullable(),
+    countryCode: z.string().nullable(),
+    city: z.string().nullable(),
+    lastSeen: isoDateSchema,
+    hasSeenOnboarding: z.boolean(),
+    userLanguages: z.array(userProfileLanguageSchema),
+});
+
+const nullableTextField = (max: number) =>
+    z.preprocess(
+        (value) => (value === "" ? null : value),
+        z.string().trim().max(max).nullable().optional(),
+    );
+
+/** Fields that can be edited from the profile page. The photo is handled by Multer. */
+export const updateUserSchema = z.object({
+    name: nullableTextField(100),
+    username: nullableTextField(30),
+    birthday: z.preprocess(
+        (value) => (value === "" ? null : value),
+        z.iso.date().nullable().optional(),
+    ),
+    gender: z.preprocess(
+        (value) => (value === "" ? null : value),
+        z.enum(["MALE", "FEMALE"]).nullable().optional(),
+    ),
+    countryCode: nullableTextField(2),
+    city: nullableTextField(100),
+});
+
+export const updateUserLanguagesSchema = z.object({
+    userLanguages: z
+        .array(userProfileLanguageSchema)
+        .max(20)
+        .refine(
+            (languages) =>
+                new Set(languages.map(({ languageCode }) => languageCode)).size ===
+                languages.length,
+            "Each language can only be added once",
+        ),
 });
 
 export const discoveryUsersResponseSchema = z.object({
@@ -59,10 +110,15 @@ export const userQueryParamsSchema = z.object({
     status: userStatusSchema.optional(),
 });
 
+
+
 export type UserStatus = z.infer<typeof userStatusSchema>;
 export type UserQueryParams = z.infer<typeof userQueryParamsSchema>;
 export type AuthenticatedUser = z.infer<typeof userSchema>;
 export type DiscoveryUser = z.infer<typeof discoveryUserSchema>;
+export type UserProfile = z.infer<typeof userProfileSchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type UpdateUserLanguagesInput = z.infer<typeof updateUserLanguagesSchema>;
 export type DiscoveryUsersResponse = z.infer<
     typeof discoveryUsersResponseSchema
 >;
