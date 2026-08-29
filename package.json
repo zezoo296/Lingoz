@@ -5,5 +5,11 @@
         "frontend",
         "backend",
         "shared"
-    ]
+    ],
+    "overrides": {
+        "deepmerge-ts": "^8.0.2"
+    },
+    "dependencies": {
+        "deepmerge-ts": "^8.0.2"
+    }
 }
