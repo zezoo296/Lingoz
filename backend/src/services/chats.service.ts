@@ -5,6 +5,8 @@ import {
 } from "./../repositories/chats.repository";
 import type { NewMessageInput } from "@linguachat/shared";
 import type { ChatItem, ChatMessagesResponse } from "@linguachat/shared";
+import { getFriendship } from "../repositories/friends.repository";
+import { getUserBasicInfo } from "../repositories/user.repository";
 import {
     getGroupChatMessagesRepo,
     getChatParticipant,
@@ -12,13 +14,17 @@ import {
     getUserChats,
     createDirectChat,
     findDirectChatBetweenUsers,
-    getDirectChatDetails,
 } from "../repositories/chats.repository";
 import AppError from "../utils/AppError";
 import prisma from "../config/prisma";
 import type { MessageStatusType } from "../generated/prisma/client";
 import { decodeCursor } from "../utils/cursor";
 import { gemini } from "../config/geminiAI";
+
+const getDisplayName = (
+    user: { username?: string | null; name?: string | null } | undefined,
+    fallback = "Unknown user",
+) => user?.username ?? user?.name ?? fallback;
 
 export const getUserChatsService = async (
     userId: number,
@@ -39,15 +45,19 @@ export const getUserChatsService = async (
             id: chat.id,
             type: chat.type,
             isFavourite: chat.isFavourite,
-            name: isGroup ? chat.name! : otherParticipant?.name!,
-            photo: isGroup ? chat.photo! : otherParticipant?.photo!,
+            name: isGroup
+                ? (chat.name ?? "Unnamed group")
+                : getDisplayName(otherParticipant),
+            photo: isGroup
+                ? (chat.photo ?? "")
+                : (otherParticipant?.photo ?? ""),
             lastMessage: {
                 id: lastMessage.id,
                 content: lastMessage.content,
                 created_at: lastMessage.createdAt.toISOString(),
                 sender: {
                     id: lastMessage.sender.id,
-                    name: lastMessage.sender.name!,
+                    name: getDisplayName(lastMessage.sender),
                 },
                 statuses: lastMessage.statuses,
                 suggestions: null,
@@ -60,38 +70,43 @@ export const getUserChatsService = async (
 export const getOrCreateDirectChatService = async (
     userId: number,
     recipientId: number,
-): Promise<ChatItem> => {
+): Promise<ChatItem | string> => {
     if (userId === recipientId) {
         throw new AppError("You cannot create a chat with yourself", 400);
     }
 
-    const connection = await prisma.friendship.findUnique({
-        where: { userId_friendId: { userId, friendId: recipientId } },
-    });
+    const connection = await getFriendship(userId, recipientId);
     if (!connection) {
         throw new AppError("You can only message your connections", 403);
     }
 
     const existingChat = await findDirectChatBetweenUsers(userId, recipientId);
-    const chatId = existingChat?.chatId ?? (await createDirectChat(userId, recipientId)).id;
-    const details = await getDirectChatDetails(chatId, userId);
-    const recipient = details?.participants[0]?.user;
 
-    if (!details || !recipient) {
+    let chatId: string;
+    if (existingChat) {
+        if (existingChat.chat.lastMessageId) return existingChat.chatId;
+        chatId = existingChat.chatId;
+    } else {
+        chatId = (await createDirectChat(userId, recipientId)).id;
+    }
+
+    const recipient = await getUserBasicInfo(recipientId);
+
+    if (!recipient) {
         throw new AppError("Unable to create a direct chat", 500);
     }
 
     return {
-        id: details.id,
+        id: chatId,
         type: "Direct",
-        isFavourite: details.isFavourite,
-        name: recipient.name ?? "Unknown user",
+        isFavourite: false,
+        name: getDisplayName(recipient),
         photo: recipient.photo ?? "",
         lastMessage: {
             id: "",
             content: "",
             created_at: new Date().toISOString(),
-            sender: { id: userId, name: "" },
+            sender: { id: userId, name: getDisplayName(recipient) },
             statuses: [],
             suggestions: null,
         },

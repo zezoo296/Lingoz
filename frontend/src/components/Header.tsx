@@ -25,10 +25,7 @@ export default function Header() {
 
     const handleLogout = async () => {
         await logout();
-
-        queryClient.removeQueries({
-            queryKey: ["current-user"],
-        });
+        queryClient.clear();
 
         navigate("/", { viewTransition: true });
     };

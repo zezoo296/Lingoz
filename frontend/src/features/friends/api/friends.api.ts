@@ -4,7 +4,16 @@ import api from "../../../lib/api";
 export type FriendRequestUser = {
     id: number;
     name: string | null;
+    username: string | null;
     photo: string | null;
+    lastSeen: string | null;
+    countryCode: string | null;
+    city: string | null;
+    userLanguages: Array<{
+        languageCode: string;
+        isLearning: boolean;
+        isSpeaking: boolean;
+    }>;
 };
 
 export type FriendRequest = {

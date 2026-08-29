@@ -93,7 +93,18 @@ export const getReceivedFriendRequests = (userId: number) => {
                 select: {
                     id: true,
                     name: true,
+                    username: true,
                     photo: true,
+                    lastSeen: true,
+                    countryCode: true,
+                    city: true,
+                    userLanguages: {
+                        select: {
+                            languageCode: true,
+                            isLearning: true,
+                            isSpeaking: true,
+                        },
+                    },
                 },
             },
         },
@@ -110,14 +121,25 @@ export const getSentFriendRequests = (userId: number) => {
                 select: {
                     id: true,
                     name: true,
+                    username: true,
                     photo: true,
+                    lastSeen: true,
+                    countryCode: true,
+                    city: true,
+                    userLanguages: {
+                        select: {
+                            languageCode: true,
+                            isLearning: true,
+                            isSpeaking: true,
+                        },
+                    },
                 },
             },
         },
     });
 };
 
-export const getConnections = (userId: number) => {
+export const getConnectionsRepo = (userId: number) => {
     return prisma.friendship.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
@@ -184,3 +206,10 @@ export const getFriendRequestById = (id: string) => {
         },
     });
 };
+
+
+export const getFriendship = (userId: number, friendId: number) => {
+    return prisma.friendship.findUnique({
+        where: { userId_friendId: { userId, friendId: friendId } },
+    });
+}

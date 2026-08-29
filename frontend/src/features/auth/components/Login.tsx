@@ -25,7 +25,7 @@ export default function Login({ onForgot }: loginProps) {
         mutationFn: login,
         onSuccess: () => {
             toast.success("Logged in successfully!");
-            navigate("/welcome", { viewTransition: true });
+            navigate("/profile", { viewTransition: true });
         },
         onError: (e) => {
             toast.error(e.message);

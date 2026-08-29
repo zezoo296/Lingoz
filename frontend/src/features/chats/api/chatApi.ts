@@ -15,7 +15,7 @@ export const getUserChats = async (): Promise<ChatItem[]> => {
 
 export const getOrCreateDirectChat = async (
     recipientId: number,
-): Promise<ChatItem> => {
+): Promise<ChatItem | string> => {
     const res = await api.post(`/chats/direct/${recipientId}`);
     return res.data.data;
 };

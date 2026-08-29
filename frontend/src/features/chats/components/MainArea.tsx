@@ -18,8 +18,9 @@ export default function MainArea({
     onBackToList,
     onNewChat,
 }: ChatListProps) {
-    if (!chats || chats.length === 0) {
-        return <MainAreaEmptyChats />;
+    console.log(selectedChat);
+    if ((!chats || chats.length === 0) && !activeChatId) {
+        return <MainAreaEmptyChats onNewChat={onNewChat} />;
     }
 
     if (!activeChatId || !selectedChat) {

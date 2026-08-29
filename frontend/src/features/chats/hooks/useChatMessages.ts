@@ -40,7 +40,7 @@ export function useSendMessage(chatId: string, chatType: "Direct" | "Group") {
     const queryClient = useQueryClient();
 
     const send = useCallback(
-        (content: string, currentUser: CurrentUser) => {
+        (content: string, currentUser: CurrentUser, selectedChat: ChatItem) => {
             const optimisticMessage = createOptimisticMessage(
                 chatType,
                 chatId,
@@ -88,27 +88,42 @@ export function useSendMessage(chatId: string, chatType: "Direct" | "Group") {
             );
 
             // Update chat list
-            queryClient.setQueryData<ChatItem[]>(["chats"], (old) =>
-                old?.map((chat) =>
-                    chat.id === chatId
-                        ? {
-                              ...chat,
-                              lastMessage: {
-                                  id: optimisticMessage.id,
-                                  content,
-                                  created_at:
-                                      optimisticMessage.createdAt.toISOString(),
-                                  sender: {
-                                      id: currentUser.id,
-                                      name: currentUser.name || "unknown",
-                                  },
-                                  statuses: [],
-                                  suggestions: null,
-                              },
-                          }
-                        : chat,
-                ),
-            );
+            queryClient.setQueryData<ChatItem[]>(["chats"], (old) => {
+                if (!old) return old;
+
+                const existingChat = old.find((chat) => chat.id === chatId);
+
+                const lastMessage = {
+                    id: optimisticMessage.id,
+                    content: optimisticMessage.content,
+                    created_at: optimisticMessage.createdAt.toISOString(),
+                    sender: {
+                        id: currentUser.id,
+                        name: currentUser.name || "unknown",
+                    },
+                    statuses: [],
+                    suggestions: null,
+                };
+
+                if (existingChat) {
+                    return old.map((chat) =>
+                        chat.id === chatId
+                            ? {
+                                  ...chat,
+                                  lastMessage,
+                              }
+                            : chat,
+                    );
+                }
+
+                return [
+                    {
+                        ...selectedChat,
+                        lastMessage,
+                    },
+                    ...old,
+                ];
+            });
 
             socket.emit(CHAT_EVENTS.NEW_MESSAGE, {
                 id: optimisticMessage.id,

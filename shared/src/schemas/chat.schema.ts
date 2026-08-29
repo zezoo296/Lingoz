@@ -12,22 +12,23 @@ export const chatItemSchema = z.object({
     isFavourite: z.boolean,
     name: z.string(),
     photo: z.string(),
-    lastMessage: z.object({
-        id: z.string(),
-        content: z.string(),
-        created_at: z.string(),
-        sender: z.object({
-            id: z.number().int(),
-            name: z.string(),
-        }),
-        statuses: z.array(
-            z.object({
-                userId: z.number().int(),
-                status: messageStatusSchema,
+    lastMessage: z
+        .object({
+            id: z.string(),
+            content: z.string(),
+            created_at: z.string(),
+            sender: z.object({
+                id: z.number().int(),
+                name: z.string(),
             }),
-        ),
-        suggestions: messageSuggestionsSchema.nullable()
-    }),
+            statuses: z.array(
+                z.object({
+                    userId: z.number().int(),
+                    status: messageStatusSchema,
+                }),
+            ),
+            suggestions: messageSuggestionsSchema.nullable(),
+        }),
     unreadCount: z.number().int().nonnegative(),
 });
 

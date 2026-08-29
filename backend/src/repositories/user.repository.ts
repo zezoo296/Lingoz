@@ -170,6 +170,20 @@ export const updateUserProfileRepo = (
     });
 };
 
+export const getUserBasicInfo = (userId: number) => {
+    return prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            name: true,
+            username: true,
+            photo: true,
+        },
+    });
+};
+
 export const replaceUserLanguagesRepo = async (
     userId: number,
     userLanguages: Prisma.UserLanguageCreateManyInput[],

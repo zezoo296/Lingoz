@@ -2,6 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FiCheck, FiMessageCircle, FiX } from "react-icons/fi";
 import { RiMapPinLine, RiTimeLine, RiUserUnfollowLine } from "react-icons/ri";
 import toast from "react-hot-toast";
+import {
+    getCountryNameFromCode,
+    getLanguageNameFromCode,
+} from "../../../lib/nameCode";
 import type {
     Connection,
     FriendRequest,
@@ -9,6 +13,7 @@ import type {
 } from "../api/friends.api";
 import { cancelRequest, respondToRequest, unfriend } from "../api/friends.api";
 import type { FriendsTab } from "./FriendsSidebar";
+import { useNavigate } from "react-router";
 
 type FriendCardProps =
     | { tab: "connections"; item: Connection }
@@ -21,6 +26,54 @@ const initials = (name: string | null) =>
         .join("")
         .slice(0, 2)
         .toUpperCase();
+
+const formatLastActive = (lastSeen: string | null) => {
+    if (!lastSeen) return "Activity unavailable";
+
+    const diffMs = Math.max(0, Date.now() - new Date(lastSeen).getTime());
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Active just now";
+    if (diffMins < 60) return `Active ${diffMins}m ago`;
+    if (diffHours < 24) return `Active ${diffHours}h ago`;
+    if (diffDays < 7) return `Active ${diffDays}d ago`;
+    return `Active ${new Date(lastSeen).toLocaleDateString()}`;
+};
+
+function LanguageDetails({
+    speakingLanguages,
+    learningLanguages,
+}: {
+    speakingLanguages: Array<{ languageCode: string }>;
+    learningLanguages: Array<{ languageCode: string }>;
+}) {
+    return (
+        <div className="mt-2 space-y-1 text-xs text-text-secondary">
+            <p>
+                <span className="text-text-muted">Speaks: </span>
+                {speakingLanguages.length > 0
+                    ? speakingLanguages
+                          .map((language) =>
+                              getLanguageNameFromCode(language.languageCode as any),
+                          )
+                          .join(", ")
+                    : "No languages listed"}
+            </p>
+            <p>
+                <span className="text-text-muted">Learning: </span>
+                {learningLanguages.length > 0
+                    ? learningLanguages
+                          .map((language) =>
+                              getLanguageNameFromCode(language.languageCode as any),
+                          )
+                          .join(", ")
+                    : "None listed"}
+            </p>
+        </div>
+    );
+}
 
 const invalidateFriendData = (queryClient: ReturnType<typeof useQueryClient>) =>
     Promise.all([
@@ -115,12 +168,14 @@ function ConnectionActions({ userId }: { userId: number }) {
         onSuccess: () => void invalidateFriendData(queryClient),
         onError: (error: Error) => toast.error(error.message),
     });
+    const navigate = useNavigate();
 
     return (
         <div className="flex items-center gap-2">
             <button
                 type="button"
                 className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-500"
+                onClick={() => navigate("/chats", { viewTransition: true })}
             >
                 <FiMessageCircle className="h-4 w-4" />
                 Message
@@ -147,10 +202,20 @@ export function FriendCard({ tab, item }: FriendCardProps) {
           ? request!.receiver!
           : request!.sender!;
     const location =
-        connection &&
-        [connection.friend.countryCode, connection.friend.city]
+        [user.countryCode, user.city]
             .filter(Boolean)
-            .join(", ");
+            .map((value, index) =>
+                index === 0 && user.countryCode
+                    ? getCountryNameFromCode(user.countryCode as any)
+                    : value,
+            )
+            .join(", ") || "Unknown location";
+    const speakingLanguages = user.userLanguages.filter(
+        (language) => language.isSpeaking,
+    );
+    const learningLanguages = user.userLanguages.filter(
+        (language) => language.isLearning,
+    );
     const requestedAt =
         request &&
         new Date(request.createdAt).toLocaleDateString(undefined, {
@@ -165,46 +230,50 @@ export function FriendCard({ tab, item }: FriendCardProps) {
                     <img
                         src={user.photo}
                         alt={user.name ?? "User"}
-                        className="h-14 w-14 shrink-0 rounded-full object-cover"
+                        className="h-20 w-20 shrink-0 rounded-full object-cover"
                     />
                 ) : (
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-500 to-brand-800 text-base font-bold text-white">
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand-500 to-brand-800 text-xl font-bold text-white">
                         {initials(user.name)}
                     </div>
                 )}
                 <div className="min-w-0">
                     <h2 className="truncate text-sm font-semibold text-text-primary">
-                        {user.name ?? "Unnamed user"}
+                        {user.username ?? user.name ?? "Unnamed user"}
                     </h2>
                     {connection ? (
                         <>
                             <p className="truncate text-sm text-text-muted">
-                                {connection.friend.username ??
-                                    "Language partner"}
+                                {user.name ?? "Language partner"}
                             </p>
-                            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-text-secondary">
-                                {location && (
-                                    <span className="flex items-center gap-1">
-                                        <RiMapPinLine className="h-3.5 w-3.5" />
-                                        {location}
-                                    </span>
-                                )}
-                                <span className="flex items-center gap-1 text-success">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                                    Connected
-                                </span>
-                            </div>
+                            <LanguageDetails
+                                speakingLanguages={speakingLanguages}
+                                learningLanguages={learningLanguages}
+                            />
                         </>
                     ) : (
-                        <p className="mt-1 flex items-center gap-1.5 text-sm text-text-muted">
+                        <>
+                            <p className="mt-1 flex items-center gap-1.5 text-sm text-text-muted">
                             <RiTimeLine className="h-4 w-4" />
                             {tab === "sent" ? "Sent" : "Received"} {requestedAt}
                             {request?.status === "REJECTED"
                                 ? " · Rejected"
                                 : ""}
-                        </p>
+                            </p>
+                        <LanguageDetails
+                            speakingLanguages={speakingLanguages}
+                            learningLanguages={learningLanguages}
+                            />
+                        </>
                     )}
                 </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary sm:border-l sm:border-border sm:pl-4">
+                <span className="flex items-center gap-1">
+                    <RiMapPinLine className="h-4 w-4" />
+                    {location}
+                </span>
+                {connection && <span>{formatLastActive(user.lastSeen)}</span>}
             </div>
             <div className="shrink-0 self-end sm:self-auto">
                 {connection ? (

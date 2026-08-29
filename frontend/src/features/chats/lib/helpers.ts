@@ -92,11 +92,57 @@ export function formatDateDivider(date: Date | string): string {
     });
 }
 
-export function formatMessageTime(date: Date | string): string {
-    return new Date(date).toLocaleTimeString([], {
-        hour: "2-digit",
+export function formatMessageTime(dateValue: string | Date) {
+    const date = new Date(dateValue);
+    const now = new Date();
+
+    const time = date.toLocaleTimeString([], {
+        hour: "numeric",
         minute: "2-digit",
     });
+
+    const isToday =
+        date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+
+    if (isToday) {
+        return `Today, ${time}`;
+    }
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+
+    const isYesterday =
+        date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear();
+
+    if (isYesterday) {
+        return `Yesterday, ${time}`;
+    }
+
+    const daysDifference = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (daysDifference < 7) {
+        const weekday = date.toLocaleDateString([], {
+            weekday: "long",
+        });
+
+        return `${weekday}, ${time}`;
+    }
+
+    const datePart = date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        ...(date.getFullYear() !== now.getFullYear()
+            ? { year: "numeric" }
+            : {}),
+    });
+
+    return `${datePart}, ${time}`;
 }
 
 function generateOptimisticMessageId() {
@@ -126,6 +172,7 @@ export function createOptimisticMessage(
             client_id: null,
             sender: currentUser,
             statuses: [],
+            suggestions: null,
         };
     }
 
@@ -135,8 +182,8 @@ export function createOptimisticMessage(
         senderId: currentUser.id,
         recieverId: null,
         status: "UnDelivered",
+        suggestions: null,
     };
 }
 
-
-export type Tabs = "All" | "Unread" | "Favourites" | "Group"
+export type Tabs = "All" | "Unread" | "Favourites" | "Group";

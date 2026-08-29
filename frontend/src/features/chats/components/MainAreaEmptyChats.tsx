@@ -27,7 +27,11 @@ const featureCards = [
     },
 ];
 
-export default function MainAreaEmptyChats() {
+export default function MainAreaEmptyChats({
+    onNewChat,
+}: {
+    onNewChat?: () => void;
+}) {
     const navigate = useNavigate();
     return (
         <main className="flex-1 bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
@@ -100,7 +104,10 @@ export default function MainAreaEmptyChats() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <button className="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-500 text-white font-medium flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20">
+                    <button
+                        onClick={onNewChat}
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-500 text-white font-medium flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20"
+                    >
                         <RiChat1Line className="w-5 h-5" />
                         Start a new chat
                     </button>

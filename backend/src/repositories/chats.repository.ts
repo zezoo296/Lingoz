@@ -2,7 +2,6 @@ import { Prisma } from "@prisma/client/extension";
 import prisma from "../config/prisma";
 import { encodeCursor, type Cursor, olderThanCursor } from "../utils/cursor";
 
-
 const paginateMessages = <T extends { id: string; createdAt: Date }>(
     rows: T[],
     limit: number,
@@ -41,7 +40,21 @@ export const getUserChats = (userId: number) => {
     return prisma.chatParticipant.findMany({
         where: {
             userId,
+            chat: {
+                lastMessage: {
+                    isNot: null,
+                },
+            },
         },
+
+        orderBy: {
+            chat: {
+                lastMessage: {
+                    createdAt: "desc",
+                },
+            },
+        },
+
         select: {
             unreadCount: true,
             chat: {
@@ -62,6 +75,7 @@ export const getUserChats = (userId: number) => {
                             user: {
                                 select: {
                                     name: true,
+                                    username: true,
                                     photo: true,
                                 },
                             },
@@ -75,6 +89,7 @@ export const getUserChats = (userId: number) => {
                             sender: {
                                 select: {
                                     id: true,
+                                    username: true,
                                     name: true,
                                 },
                             },
@@ -106,10 +121,19 @@ export const findDirectChatBetweenUsers = (
             userId,
             chat: {
                 type: "Direct",
-                participants: { some: { userId: recipientId } },
+                participants: {
+                    some: { userId: recipientId },
+                },
             },
         },
-        select: { chatId: true },
+        select: {
+            chatId: true,
+            chat: {
+                select: {
+                    lastMessageId: true,
+                },
+            },
+        },
     });
 };
 

@@ -170,8 +170,17 @@ export default function ChatsPage() {
                 <NewChatModal
                     onClose={() => setShowNewChat(false)}
                     onChatCreated={(chat) => {
-                        setActiveChatId(chat.id);
-                        setSelectedChat(chat);
+                        const wantedChat =
+                            typeof chat === "string"
+                                ? chats.find(
+                                      (existingChat) =>
+                                          existingChat.id === chat,
+                                  )
+                                : chat;
+                        console.log(wantedChat);
+
+                        setActiveChatId(wantedChat?.id);
+                        setSelectedChat(wantedChat);
                     }}
                 />
             )}

@@ -1,7 +1,7 @@
 import { Toaster } from "react-hot-toast";
 
 const toastOptions = {
-  duration: 3000,
+  duration: 2000,
 
   style: {
     background: "var(--color-surface-elevated)",

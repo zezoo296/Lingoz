@@ -7,10 +7,7 @@ import { ChatHeader } from "./ChatHeader";
 import { MessageInput } from "./MessageInput";
 import { MessageList } from "./MessageList";
 import type { ChatItem, ChatMessagesResponse } from "@linguachat/shared";
-import {
-    isMessageSentByCurrentUser,
-    type Message,
-} from "../lib/helpers";
+import { isMessageSentByCurrentUser, type Message } from "../lib/helpers";
 
 interface MainAreaActiveChatProps {
     activeChatId: string;
@@ -62,7 +59,7 @@ export function MainAreaActiveChat({
     const handleSend = useCallback(
         (content: string) => {
             if (!currentUser) return;
-            sendMessage(content, currentUser);
+            sendMessage(content, currentUser, selectedChat);
             scrollToBottom();
         },
         [currentUser, sendMessage, scrollToBottom],
