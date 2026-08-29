@@ -8,8 +8,7 @@ export default function GuestRoute() {
     }
 
     if (user) {
-        if (!user.hasSeenOnboarding) return <Navigate to="/welcome" replace />;
-        return <Navigate to="/chats" replace />;
+        return <Navigate to="/profile" replace />;
     }
 
     return <Outlet />;

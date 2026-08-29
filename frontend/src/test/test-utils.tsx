@@ -1,7 +1,13 @@
 import { type ReactElement, type ReactNode } from "react";
 import { render, type RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter, type MemoryRouterProps } from "react-router";
+import {
+    MemoryRouter,
+    type MemoryRouterProps,
+    createMemoryRouter,
+    RouterProvider,
+    type RouteObject,
+} from "react-router";
 import userEvent from "@testing-library/user-event";
 
 export function createTestQueryClient() {
@@ -61,6 +67,29 @@ export function renderWithProviders(
         user: userEvent.setup(),
         queryClient,
         ...render(ui, { wrapper: Wrapper, ...renderOptions }),
+    };
+}
+
+export function renderWithRoutes(
+    routes: RouteObject[],
+    options: {
+        queryClient?: QueryClient;
+        initialEntries?: string[];
+    } = {},
+) {
+    const { queryClient = createTestQueryClient(), initialEntries = ["/"] } =
+        options;
+    const router = createMemoryRouter(routes, { initialEntries });
+
+    return {
+        user: userEvent.setup(),
+        queryClient,
+        router,
+        ...render(
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>,
+        ),
     };
 }
 
