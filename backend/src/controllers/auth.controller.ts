@@ -54,9 +54,12 @@ export const loginWithGoogle = catchAsync(
 
         const result = await googleLoginService(token);
 
+        const isProdcution = process.env.NODE_ENV === "production";
+
         res.cookie("token", result.token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: isProdcution ? "none" : "lax",
         });
 
         res.status(200).json({
