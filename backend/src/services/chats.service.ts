@@ -265,7 +265,7 @@ export const toggleChatFavouritesService = async (
     await toggleChatFavouritesRepo(chatId);
 };
 
-import { messageSuggestionsSchema } from "@linguachat/shared/src/schemas/chat.schema";
+import { messageSuggestionsSchema } from "@linguachat/shared";
 import { updateMessageSuggestions } from "./../repositories/chats.repository";
 
 export const getMessageSuggestionsService = async (

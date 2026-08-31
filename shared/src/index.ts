@@ -26,6 +26,7 @@ export {
     chatItemSchema,
     chatMessagesResponseSchema,
     messageStatusSchema,
+    messageSuggestionsSchema,
 } from "./schemas/chat.schema";
 
 export type {
