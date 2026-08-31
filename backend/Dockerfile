@@ -5,19 +5,25 @@ WORKDIR /app
 # Root workspace files
 COPY package.json package-lock.json ./
 
-# Backend and shared package manifests
+# Workspace package manifests
 COPY backend/package.json ./backend/package.json
 COPY shared/package.json ./shared/package.json
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Only copy backend + shared source
+# Copy source
 COPY backend ./backend
 COPY shared ./shared
 
 WORKDIR /app/backend
 
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build backend
+RUN npm run build
+
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

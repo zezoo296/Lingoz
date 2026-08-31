@@ -9,7 +9,7 @@
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
         "prisma:reset": "prisma migrate reset",
-        "worker": "ts-node src/workers/index.ts"
+        "worker": "node dist/workers/index.js"
     },
     "dependencies": {
         "@google/genai": "^2.18.0",
@@ -44,7 +44,6 @@
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3"
     },
-
     "engines": {
         "node": ">=20.0.0"
     },

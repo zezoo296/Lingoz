@@ -10,9 +10,7 @@ export const config = {
     JWTExpiresIn: (process.env.JWT_EXPIRES_IN ??
         "1d") as jwt.SignOptions["expiresIn"],
     clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:5000",
-    googleClientId:
-        process.env.GOOGLE_CLIENT_ID ??
-        "745993027366-jq3tbdv6nn07dkvssvu0v7vf558c2ftk.apps.googleusercontent.com",
+    googleClientId: process.env.GOOGLE_CLIENT_ID ?? "GOOGLE_CLIENT_ID",
     resendApiKey: process.env.RESEND_API_KEY ?? "",
     resendFromEmail:
         process.env.RESEND_FROM_EMAIL ?? "LinguaChat <onboarding@resend.dev>",
