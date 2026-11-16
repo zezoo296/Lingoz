@@ -7,8 +7,11 @@ if (!redisUrl) {
     throw new Error("REDIS_URL is not configured");
 }
 
-export const redis = new Redis(redisUrl); //Cache
+export const redis = new Redis(redisUrl, {
+    family: 0,
+});
 
-export const bullmqRedis = new Redis(redisUrl, { //Queue
+export const bullmqRedis = new Redis(redisUrl, {
+    family: 0,
     maxRetriesPerRequest: null,
 });
