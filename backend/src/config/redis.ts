@@ -1,17 +1,21 @@
 import Redis from "ioredis";
 import { config } from "./env";
 
-const redisUrl = config.redisURL;
+const redisUrl = new URL(config.redisURL);
+redisUrl.searchParams.set("family", "0");
 
-if (!redisUrl) {
-    throw new Error("REDIS_URL is not configured");
-}
+const connectionUrl = redisUrl.toString();
 
-export const redis = new Redis(redisUrl, {
-    family: 0,
+export const redis = new Redis(connectionUrl);
+
+export const bullmqRedis = new Redis(connectionUrl, {
+    maxRetriesPerRequest: null,
 });
 
-export const bullmqRedis = new Redis(redisUrl, {
-    family: 0,
-    maxRetriesPerRequest: null,
+redis.on("error", (err) => {
+    console.error("[Redis Cache]", err.message);
+});
+
+bullmqRedis.on("error", (err) => {
+    console.error("[Redis Queue]", err.message);
 });
